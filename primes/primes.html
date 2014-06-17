@@ -1,0 +1,143 @@
+<!--
+Copyright (c) 2012 Tagir F. Valeev
+Functions factor, leastFactor, Array.prototype.remove, arrayFix are 
+borrowed from http://omnomnom.koding.com/factor/ (author: helarqjsc)
+
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+
+
+function factor(n) {
+  if (isNaN(n) || !isFinite(n) || n%1!=0 || n==0) return [].concat(n);
+  if (n<0) return -factor(-n);
+  var minFactor = leastFactor(n);
+  if (n==minFactor) return [].concat(n);
+  return factor(n/minFactor).concat(minFactor);
+}
+
+function leastFactor(n) {
+  if (isNaN(n) || !isFinite(n)) return NaN;  
+  if (n==0) return 0;  
+  if (n%1 || n*n<2) return 1;
+  if (n%2==0) return 2;  
+  if (n%3==0) return 3;  
+  if (n%5==0) return 5;  
+  var m = Math.sqrt(n);
+  for (var i=7;i<=m;i+=30) {
+    if (n%i==0)      return i;
+    if (n%(i+4)==0)  return i+4;
+    if (n%(i+6)==0)  return i+6;
+    if (n%(i+10)==0) return i+10;
+    if (n%(i+12)==0) return i+12;
+    if (n%(i+16)==0) return i+16;
+    if (n%(i+22)==0) return i+22;
+    if (n%(i+24)==0) return i+24;
+  }
+  return n;
+}
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
+
+function arrayFix(a){
+  var b = a.slice();
+  for(var i=0; i<a.length-1; i++){
+    if(b[i] == 2 && b[i+1] == 2){
+      b.remove(i);
+      b.remove(i);
+      b.splice(i,0,4);
+    }
+  } 
+  return b;
+}
+
+function generate() {
+  var number = document.getElementById("number").value;
+  var factors = factor(number);
+  if(factors[0] == 1) factors = [];
+  document.getElementById("primes").innerHTML = factors.join(', ');
+  trace(arrayFix(factors), document.getElementById("canvas"));
+}
+
+function checkPoint(factors, n, x, y, r)
+{
+  var dd = x*x+y*y;
+  if(dd>r*r) return false;
+  if(r < 2 || n>=factors.length) return true;
+  var factor = factors[n];
+  var si = Math.sin(Math.PI/factor);
+  var r1 = r*si/(1+si)*0.9;
+  if(r1 < 1) r1 = 1;
+  var rin = r-2*r1;
+  if(dd<rin*rin) return false;
+  var sector = Math.floor(Math.atan2(x, y)/Math.PI/2*factor);
+  var angle = (sector*2+1)*Math.PI/factor;
+  return checkPoint(factors, n+1, x-(r-r1)*Math.sin(angle), y-(r-r1)*Math.cos(angle), r1);
+}
+
+function trace(factors, canvas) {
+  var ctx = canvas.getContext("2d");
+  var w = canvas.width;
+  var h = canvas.height;
+  var img = ctx.createImageData(w, h);
+  var cx = w/2;
+  var cy = h/2;
+  var r = Math.min(w,h)/2.1;
+  var subPixel = 2;
+  for(var x=0; x<w; x++)
+  {
+    for(var y=0; y<h; y++)
+    {
+      var n=0;
+      for(var xx=0; xx<subPixel; xx++)
+      {
+        for(var yy=0; yy<subPixel; yy++)
+        {
+          if(checkPoint(factors, 0, x+xx/subPixel-cx, y+yy/subPixel-cy, r)) n++;
+        }
+      }
+      if(n) {
+        img.data[(y*w+x)*4+3]=255*n/subPixel/subPixel;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+</script>
+</head>
+<body onload="generate()">
+<div>
+Number: <input type="text" id="number" value="3628800"><br>
+Primes: <span id="primes"></span><br>
+<input type="button" value="Generate" onclick="generate()">
+</div><br>
+<canvas id="canvas" width="700" height="700" style="width: 700px; height: 700px">
+</canvas>
+</body>
+</html>
