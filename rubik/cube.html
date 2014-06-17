@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<!--
+cube.html - Canvas Rubik's Cube demo
+Version: 1.0
+Author: Tagir F. Valeev (lany@ngs.ru)
+License: MIT [ http://www.opensource.org/licenses/mit-license.php ]
+-->
+<html>
+<head>
+<title>Rubik's Cube</title>
+<script type="text/javascript" src="cube.js"></script>
+<script>
+var cube;
+
+function setSize(n)
+{
+	cube.setParam({size: n});
+}
+
+function shuffle(animation)
+{
+	cube.shuffle(50,animation);
+}
+
+function reset()
+{
+	cube.reset();
+}
+
+function zoomIn()
+{
+	cube.setParam({zoom: cube.zoom*1.2});
+}
+
+function zoomOut()
+{
+	cube.setParam({zoom: cube.zoom/1.2});
+}
+
+function zoomFit()
+{
+	cube.setParam({zoom: 1});
+}
+
+function setShiny(n)
+{
+	cube.setParam({shiny: n});
+}
+
+function undo()
+{
+	cube.undo();
+}
+
+function start()
+{
+cube = new RubikCube(document.getElementById("canvas"), {size: 5});
+}
+</script>
+<style>
+span {text-decoration: underline; color: blue; cursor: pointer;}
+</style>
+</head>
+<body onload="start()">
+<span onclick="setSize(2);return false">2x2</span> | <span onclick="setSize(3);return false">3x3</span> | <span onclick="setSize(4);return false">4x4</span> | <span onclick="setSize(5);return false">5x5</span> | <span onclick="setSize(6);return false">6x6</span> | <span onclick="setSize(7);return false">7x7</span> | <span onclick="setSize(9);return false">9x9</span> | <span onclick="setSize(11);return false">11x11</span><br>
+<span onclick="setShiny(0);return false">Flat</span> | <span onclick="setShiny(0.25);return false">Shiny</span><br>
+<span onclick="zoomIn();return false">Zoom in</span> | <span onclick="zoomOut();return false">Zoom out</span> | <span onclick="zoomFit();return false">Zoom 100%</span><br>
+<span onclick="shuffle(0);return false">Shuffle (fast)</span> | <span onclick="shuffle(2);return false">Shuffle (animated)</span> | <span onclick="reset();return false">Reset</span> | <span onclick="undo();return false">Undo</span><br>
+Hold 'Shift' key or right mouse button to rotate whole cube
+<br>
+<div id="debug"></div>
+<canvas width="800" height="600" id="canvas"></canvas>
+</body>
+</html>
