@@ -1,0 +1,85 @@
+--- old/src/java.base/share/classes/java/time/LocalDate.java	2015-12-26 22:06:59.630807300 +0600
++++ new/src/java.base/share/classes/java/time/LocalDate.java	2015-12-26 22:06:59.465786300 +0600
+@@ -100,6 +100,8 @@
+ import java.time.zone.ZoneOffsetTransition;
+ import java.time.zone.ZoneRules;
+ import java.util.Objects;
++import java.util.stream.LongStream;
++import java.util.stream.Stream;
+ 
+ /**
+  * A date without a time-zone in the ISO-8601 calendar system,
+@@ -1697,6 +1699,73 @@
+         int months = (int) (totalMonths % 12);  // safe
+         return Period.of(Math.toIntExact(years), months, days);
+     }
++    
++    /**
++     * Returns a sequential ordered {@link Stream} containing all the
++     * {@code LocalDate} values starting from this (inclusive) to
++     * {@code endExclusive} (exclusive) by an incremental step of 1 day.
++     * <p>
++     * This method is equivalent to {@code datesUntil(endExclusive, Period.ofDays(1))}.
++     * <p>
++     * The resulting stream will be empty if the end date is equal to or before the start.
++     *
++     * @param endExclusive  the end date, exclusive, not null
++     * @return a sequential {@code Stream} for the range of {@code LocalDate}
++     *         values
++     * @since 9
++     */
++    public Stream<LocalDate> datesUntil(LocalDate endExclusive) {
++        return LongStream.range(0, daysUntil(endExclusive)).mapToObj(this::plusDays);
++    }
++
++    /**
++     * Returns a sequential ordered {@link Stream} containing the
++     * {@code LocalDate} values starting from this (inclusive) to
++     * {@code endExclusive} (exclusive) by the supplied incremental {@code step}.
++     * <p>
++     * The resulting stream will be empty if the end date is equal to or before the start.
++     * 
++     * @param endExclusive  the end date, exclusive, not null
++     * @param step  the non-zero, non-negative {@code Period} which represents 
++     *              the step.
++     * @return a sequential {@code Stream} for the range of {@code LocalDate}
++     *         values
++     * @throws IllegalArgumentException if step is zero or is negative
++     * @since 9
++     */
++    public Stream<LocalDate> datesUntil(LocalDate endExclusive, Period step) {
++        if (step.isZero() || step.isNegative())
++            throw new IllegalArgumentException("step must be positive");
++        long until = daysUntil(endExclusive);
++        if (until <= 0)
++            return Stream.empty();
++        long months = step.toTotalMonths();
++        long days = step.getDays();
++        long steps;
++        if (months != 0) {
++            // 48699/1600 = 365.2425/12, no overflow
++            steps = until * 1600 / (months * 48699 + days * 1600) + 1;
++            long endDays = endExclusive.toEpochDay();
++            long maxAddMonths = MAX.getProlepticMonth() - getProlepticMonth();
++            long addMonths = months * steps;
++            long addDays = days * steps;
++            // adjust steps estimation
++            if (addMonths > maxAddMonths
++                    || plusMonths(addMonths).toEpochDay() + addDays >= endDays) {
++                steps--;
++                addMonths -= months;
++                addDays -= days;
++                if (addMonths > maxAddMonths
++                        || plusMonths(addMonths).toEpochDay() + addDays >= endDays) {
++                    steps--;
++                }
++            }
++        } else {
++            steps = (until - 1) / days;
++        }
++        return LongStream.rangeClosed(0, steps).mapToObj(
++                n -> this.plusMonths(months * n).plusDays(days * n));
++    }
+ 
+     /**
+      * Formats this date using the specified formatter.

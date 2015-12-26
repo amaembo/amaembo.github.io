@@ -1,0 +1,2362 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<!--
+   Note to customizers: the body of the webrev is IDed as SUNWwebrev
+   to allow easy overriding by users of webrev via the userContent.css
+   mechanism available in some browsers.
+
+   For example, to have all "removed" information be red instead of
+   brown, set a rule in your userContent.css file like:
+
+       body#SUNWwebrev span.removed { color: red ! important; }
+-->
+<style type="text/css" media="screen">
+body {
+    background-color: #eeeeee;
+}
+hr {
+    border: none 0;
+    border-top: 1px solid #aaa;
+    height: 1px;
+}
+div.summary {
+    font-size: .8em;
+    border-bottom: 1px solid #aaa;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+div.summary h2 {
+    margin-bottom: 0.3em;
+}
+div.summary table th {
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+}
+span.lineschanged {
+    font-size: 0.7em;
+}
+span.oldmarker {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+}
+span.newmarker {
+    color: green;
+    font-size: large;
+    font-weight: bold;
+}
+span.removed {
+    color: brown;
+}
+span.changed {
+    color: blue;
+}
+span.new {
+    color: blue;
+    font-weight: bold;
+}
+a.print { font-size: x-small; }
+
+</style>
+
+<style type="text/css" media="print">
+pre { font-size: 0.8em; font-family: courier, monospace; }
+span.removed { color: #444; font-style: italic }
+span.changed { font-weight: bold; }
+span.new { font-weight: bold; }
+span.newmarker { font-size: 1.2em; font-weight: bold; }
+span.oldmarker { font-size: 1.2em; font-weight: bold; }
+a.print {display: none}
+hr { border: none 0; border-top: 1px solid #aaa; height: 1px; }
+</style>
+
+    <script type="text/javascript" src="../../../../../../ancnav.js"></script>
+    </head>
+    <body id="SUNWwebrev" onkeypress="keypress(event);">
+    <a name="0"></a>
+    <pre></pre><hr></hr>
+<pre>
+   1 /*
+   2  * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
+   3  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+   4  *
+   5  * This code is free software; you can redistribute it and/or modify it
+   6  * under the terms of the GNU General Public License version 2 only, as
+   7  * published by the Free Software Foundation.  Oracle designates this
+   8  * particular file as subject to the "Classpath" exception as provided
+   9  * by Oracle in the LICENSE file that accompanied this code.
+  10  *
+  11  * This code is distributed in the hope that it will be useful, but WITHOUT
+  12  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  13  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+  14  * version 2 for more details (a copy is included in the LICENSE file that
+  15  * accompanied this code).
+  16  *
+  17  * You should have received a copy of the GNU General Public License version
+  18  * 2 along with this work; if not, write to the Free Software Foundation,
+  19  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+  20  *
+  21  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+  22  * or visit www.oracle.com if you need additional information or have any
+  23  * questions.
+  24  */
+  25 
+  26 /*
+  27  * This file is available under and governed by the GNU General Public
+  28  * License version 2 only, as published by the Free Software Foundation.
+  29  * However, the following notice accompanied the original version of this
+  30  * file:
+  31  *
+  32  * Copyright (c) 2007-2012, Stephen Colebourne &amp; Michael Nascimento Santos
+  33  *
+  34  * All rights reserved.
+  35  *
+  36  * Redistribution and use in source and binary forms, with or without
+  37  * modification, are permitted provided that the following conditions are met:
+  38  *
+  39  *  * Redistributions of source code must retain the above copyright notice,
+  40  *    this list of conditions and the following disclaimer.
+  41  *
+  42  *  * Redistributions in binary form must reproduce the above copyright notice,
+  43  *    this list of conditions and the following disclaimer in the documentation
+  44  *    and/or other materials provided with the distribution.
+  45  *
+  46  *  * Neither the name of JSR-310 nor the names of its contributors
+  47  *    may be used to endorse or promote products derived from this software
+  48  *    without specific prior written permission.
+  49  *
+  50  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  51  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  52  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  53  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+  54  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  55  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  56  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  57  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  58  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  59  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  60  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  61  */
+  62 package java.time;
+  63 
+  64 import static java.time.LocalTime.SECONDS_PER_DAY;
+  65 import static java.time.temporal.ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH;
+  66 import static java.time.temporal.ChronoField.ALIGNED_DAY_OF_WEEK_IN_YEAR;
+  67 import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_MONTH;
+  68 import static java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR;
+  69 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+  70 import static java.time.temporal.ChronoField.DAY_OF_YEAR;
+  71 import static java.time.temporal.ChronoField.EPOCH_DAY;
+  72 import static java.time.temporal.ChronoField.ERA;
+  73 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+  74 import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
+  75 import static java.time.temporal.ChronoField.YEAR;
+  76 
+  77 import java.io.DataInput;
+  78 import java.io.DataOutput;
+  79 import java.io.IOException;
+  80 import java.io.InvalidObjectException;
+  81 import java.io.ObjectInputStream;
+  82 import java.io.Serializable;
+  83 import java.time.chrono.ChronoLocalDate;
+  84 import java.time.chrono.IsoEra;
+  85 import java.time.chrono.IsoChronology;
+  86 import java.time.format.DateTimeFormatter;
+  87 import java.time.format.DateTimeParseException;
+  88 import java.time.temporal.ChronoField;
+  89 import java.time.temporal.ChronoUnit;
+  90 import java.time.temporal.Temporal;
+  91 import java.time.temporal.TemporalAccessor;
+  92 import java.time.temporal.TemporalAdjuster;
+  93 import java.time.temporal.TemporalAmount;
+  94 import java.time.temporal.TemporalField;
+  95 import java.time.temporal.TemporalQueries;
+  96 import java.time.temporal.TemporalQuery;
+  97 import java.time.temporal.TemporalUnit;
+  98 import java.time.temporal.UnsupportedTemporalTypeException;
+  99 import java.time.temporal.ValueRange;
+ 100 import java.time.zone.ZoneOffsetTransition;
+ 101 import java.time.zone.ZoneRules;
+ 102 import java.util.Objects;
+<a name="1" id="anc1"></a>
+
+ 103 
+ 104 /**
+ 105  * A date without a time-zone in the ISO-8601 calendar system,
+ 106  * such as {@code 2007-12-03}.
+ 107  * &lt;p&gt;
+ 108  * {@code LocalDate} is an immutable date-time object that represents a date,
+ 109  * often viewed as year-month-day. Other date fields, such as day-of-year,
+ 110  * day-of-week and week-of-year, can also be accessed.
+ 111  * For example, the value "2nd October 2007" can be stored in a {@code LocalDate}.
+ 112  * &lt;p&gt;
+ 113  * This class does not store or represent a time or time-zone.
+ 114  * Instead, it is a description of the date, as used for birthdays.
+ 115  * It cannot represent an instant on the time-line without additional information
+ 116  * such as an offset or time-zone.
+ 117  * &lt;p&gt;
+ 118  * The ISO-8601 calendar system is the modern civil calendar system used today
+ 119  * in most of the world. It is equivalent to the proleptic Gregorian calendar
+ 120  * system, in which today's rules for leap years are applied for all time.
+ 121  * For most applications written today, the ISO-8601 rules are entirely suitable.
+ 122  * However, any application that makes use of historical dates, and requires them
+ 123  * to be accurate will find the ISO-8601 approach unsuitable.
+ 124  *
+ 125  * &lt;p&gt;
+ 126  * This is a &lt;a href="{@docRoot}/java/lang/doc-files/ValueBased.html"&gt;value-based&lt;/a&gt;
+ 127  * class; use of identity-sensitive operations (including reference equality
+ 128  * ({@code ==}), identity hash code, or synchronization) on instances of
+ 129  * {@code LocalDate} may have unpredictable results and should be avoided.
+ 130  * The {@code equals} method should be used for comparisons.
+ 131  *
+ 132  * @implSpec
+ 133  * This class is immutable and thread-safe.
+ 134  *
+ 135  * @since 1.8
+ 136  */
+ 137 public final class LocalDate
+ 138         implements Temporal, TemporalAdjuster, ChronoLocalDate, Serializable {
+ 139 
+ 140     /**
+ 141      * The minimum supported {@code LocalDate}, '-999999999-01-01'.
+ 142      * This could be used by an application as a "far past" date.
+ 143      */
+ 144     public static final LocalDate MIN = LocalDate.of(Year.MIN_VALUE, 1, 1);
+ 145     /**
+ 146      * The maximum supported {@code LocalDate}, '+999999999-12-31'.
+ 147      * This could be used by an application as a "far future" date.
+ 148      */
+ 149     public static final LocalDate MAX = LocalDate.of(Year.MAX_VALUE, 12, 31);
+ 150     /**
+ 151      * The epoch year {@code LocalDate}, '1970-01-01'.
+ 152      */
+ 153     public static final LocalDate EPOCH = LocalDate.of(1970, 1, 1);
+ 154 
+ 155     /**
+ 156      * Serialization version.
+ 157      */
+ 158     private static final long serialVersionUID = 2942565459149668126L;
+ 159     /**
+ 160      * The number of days in a 400 year cycle.
+ 161      */
+ 162     private static final int DAYS_PER_CYCLE = 146097;
+ 163     /**
+ 164      * The number of days from year zero to year 1970.
+ 165      * There are five 400 year cycles from year zero to 2000.
+ 166      * There are 7 leap years from 1970 to 2000.
+ 167      */
+ 168     static final long DAYS_0000_TO_1970 = (DAYS_PER_CYCLE * 5L) - (30L * 365L + 7L);
+ 169 
+ 170     /**
+ 171      * The year.
+ 172      */
+ 173     private final int year;
+ 174     /**
+ 175      * The month-of-year.
+ 176      */
+ 177     private final short month;
+ 178     /**
+ 179      * The day-of-month.
+ 180      */
+ 181     private final short day;
+ 182 
+ 183     //-----------------------------------------------------------------------
+ 184     /**
+ 185      * Obtains the current date from the system clock in the default time-zone.
+ 186      * &lt;p&gt;
+ 187      * This will query the {@link Clock#systemDefaultZone() system clock} in the default
+ 188      * time-zone to obtain the current date.
+ 189      * &lt;p&gt;
+ 190      * Using this method will prevent the ability to use an alternate clock for testing
+ 191      * because the clock is hard-coded.
+ 192      *
+ 193      * @return the current date using the system clock and default time-zone, not null
+ 194      */
+ 195     public static LocalDate now() {
+ 196         return now(Clock.systemDefaultZone());
+ 197     }
+ 198 
+ 199     /**
+ 200      * Obtains the current date from the system clock in the specified time-zone.
+ 201      * &lt;p&gt;
+ 202      * This will query the {@link Clock#system(ZoneId) system clock} to obtain the current date.
+ 203      * Specifying the time-zone avoids dependence on the default time-zone.
+ 204      * &lt;p&gt;
+ 205      * Using this method will prevent the ability to use an alternate clock for testing
+ 206      * because the clock is hard-coded.
+ 207      *
+ 208      * @param zone  the zone ID to use, not null
+ 209      * @return the current date using the system clock, not null
+ 210      */
+ 211     public static LocalDate now(ZoneId zone) {
+ 212         return now(Clock.system(zone));
+ 213     }
+ 214 
+ 215     /**
+ 216      * Obtains the current date from the specified clock.
+ 217      * &lt;p&gt;
+ 218      * This will query the specified clock to obtain the current date - today.
+ 219      * Using this method allows the use of an alternate clock for testing.
+ 220      * The alternate clock may be introduced using {@link Clock dependency injection}.
+ 221      *
+ 222      * @param clock  the clock to use, not null
+ 223      * @return the current date, not null
+ 224      */
+ 225     public static LocalDate now(Clock clock) {
+ 226         Objects.requireNonNull(clock, "clock");
+ 227         final Instant now = clock.instant();  // called once
+ 228         return ofInstant(now, clock.getZone());
+ 229     }
+ 230 
+ 231     //-----------------------------------------------------------------------
+ 232     /**
+ 233      * Obtains an instance of {@code LocalDate} from a year, month and day.
+ 234      * &lt;p&gt;
+ 235      * This returns a {@code LocalDate} with the specified year, month and day-of-month.
+ 236      * The day must be valid for the year and month, otherwise an exception will be thrown.
+ 237      *
+ 238      * @param year  the year to represent, from MIN_YEAR to MAX_YEAR
+ 239      * @param month  the month-of-year to represent, not null
+ 240      * @param dayOfMonth  the day-of-month to represent, from 1 to 31
+ 241      * @return the local date, not null
+ 242      * @throws DateTimeException if the value of any field is out of range,
+ 243      *  or if the day-of-month is invalid for the month-year
+ 244      */
+ 245     public static LocalDate of(int year, Month month, int dayOfMonth) {
+ 246         YEAR.checkValidValue(year);
+ 247         Objects.requireNonNull(month, "month");
+ 248         DAY_OF_MONTH.checkValidValue(dayOfMonth);
+ 249         return create(year, month.getValue(), dayOfMonth);
+ 250     }
+ 251 
+ 252     /**
+ 253      * Obtains an instance of {@code LocalDate} from a year, month and day.
+ 254      * &lt;p&gt;
+ 255      * This returns a {@code LocalDate} with the specified year, month and day-of-month.
+ 256      * The day must be valid for the year and month, otherwise an exception will be thrown.
+ 257      *
+ 258      * @param year  the year to represent, from MIN_YEAR to MAX_YEAR
+ 259      * @param month  the month-of-year to represent, from 1 (January) to 12 (December)
+ 260      * @param dayOfMonth  the day-of-month to represent, from 1 to 31
+ 261      * @return the local date, not null
+ 262      * @throws DateTimeException if the value of any field is out of range,
+ 263      *  or if the day-of-month is invalid for the month-year
+ 264      */
+ 265     public static LocalDate of(int year, int month, int dayOfMonth) {
+ 266         YEAR.checkValidValue(year);
+ 267         MONTH_OF_YEAR.checkValidValue(month);
+ 268         DAY_OF_MONTH.checkValidValue(dayOfMonth);
+ 269         return create(year, month, dayOfMonth);
+ 270     }
+ 271 
+ 272     //-----------------------------------------------------------------------
+ 273     /**
+ 274      * Obtains an instance of {@code LocalDate} from a year and day-of-year.
+ 275      * &lt;p&gt;
+ 276      * This returns a {@code LocalDate} with the specified year and day-of-year.
+ 277      * The day-of-year must be valid for the year, otherwise an exception will be thrown.
+ 278      *
+ 279      * @param year  the year to represent, from MIN_YEAR to MAX_YEAR
+ 280      * @param dayOfYear  the day-of-year to represent, from 1 to 366
+ 281      * @return the local date, not null
+ 282      * @throws DateTimeException if the value of any field is out of range,
+ 283      *  or if the day-of-year is invalid for the year
+ 284      */
+ 285     public static LocalDate ofYearDay(int year, int dayOfYear) {
+ 286         YEAR.checkValidValue(year);
+ 287         DAY_OF_YEAR.checkValidValue(dayOfYear);
+ 288         boolean leap = IsoChronology.INSTANCE.isLeapYear(year);
+ 289         if (dayOfYear == 366 &amp;&amp; leap == false) {
+ 290             throw new DateTimeException("Invalid date 'DayOfYear 366' as '" + year + "' is not a leap year");
+ 291         }
+ 292         Month moy = Month.of((dayOfYear - 1) / 31 + 1);
+ 293         int monthEnd = moy.firstDayOfYear(leap) + moy.length(leap) - 1;
+ 294         if (dayOfYear &gt; monthEnd) {
+ 295             moy = moy.plus(1);
+ 296         }
+ 297         int dom = dayOfYear - moy.firstDayOfYear(leap) + 1;
+ 298         return new LocalDate(year, moy.getValue(), dom);
+ 299     }
+ 300 
+ 301     //-----------------------------------------------------------------------
+ 302     /**
+ 303      * Obtains an instance of {@code LocalDate} from an {@code Instant} and zone ID.
+ 304      * &lt;p&gt;
+ 305      * This creates a local date based on the specified instant.
+ 306      * First, the offset from UTC/Greenwich is obtained using the zone ID and instant,
+ 307      * which is simple as there is only one valid offset for each instant.
+ 308      * Then, the instant and offset are used to calculate the local date.
+ 309      *
+ 310      * @param instant  the instant to create the date from, not null
+ 311      * @param zone  the time-zone, which may be an offset, not null
+ 312      * @return the local date, not null
+ 313      * @throws DateTimeException if the result exceeds the supported range
+ 314      * @since 9
+ 315      */
+ 316     public static LocalDate ofInstant(Instant instant, ZoneId zone) {
+ 317         Objects.requireNonNull(instant, "instant");
+ 318         Objects.requireNonNull(zone, "zone");
+ 319         ZoneRules rules = zone.getRules();
+ 320         ZoneOffset offset = rules.getOffset(instant);
+ 321         long localSecond = instant.getEpochSecond() + offset.getTotalSeconds();
+ 322         long localEpochDay = Math.floorDiv(localSecond, SECONDS_PER_DAY);
+ 323         return ofEpochDay(localEpochDay);
+ 324     }
+ 325 
+ 326     //-----------------------------------------------------------------------
+ 327     /**
+ 328      * Obtains an instance of {@code LocalDate} from the epoch day count.
+ 329      * &lt;p&gt;
+ 330      * This returns a {@code LocalDate} with the specified epoch-day.
+ 331      * The {@link ChronoField#EPOCH_DAY EPOCH_DAY} is a simple incrementing count
+ 332      * of days where day 0 is 1970-01-01. Negative numbers represent earlier days.
+ 333      *
+ 334      * @param epochDay  the Epoch Day to convert, based on the epoch 1970-01-01
+ 335      * @return the local date, not null
+ 336      * @throws DateTimeException if the epoch day exceeds the supported date range
+ 337      */
+ 338     public static LocalDate ofEpochDay(long epochDay) {
+ 339         long zeroDay = epochDay + DAYS_0000_TO_1970;
+ 340         // find the march-based year
+ 341         zeroDay -= 60;  // adjust to 0000-03-01 so leap day is at end of four year cycle
+ 342         long adjust = 0;
+ 343         if (zeroDay &lt; 0) {
+ 344             // adjust negative years to positive for calculation
+ 345             long adjustCycles = (zeroDay + 1) / DAYS_PER_CYCLE - 1;
+ 346             adjust = adjustCycles * 400;
+ 347             zeroDay += -adjustCycles * DAYS_PER_CYCLE;
+ 348         }
+ 349         long yearEst = (400 * zeroDay + 591) / DAYS_PER_CYCLE;
+ 350         long doyEst = zeroDay - (365 * yearEst + yearEst / 4 - yearEst / 100 + yearEst / 400);
+ 351         if (doyEst &lt; 0) {
+ 352             // fix estimate
+ 353             yearEst--;
+ 354             doyEst = zeroDay - (365 * yearEst + yearEst / 4 - yearEst / 100 + yearEst / 400);
+ 355         }
+ 356         yearEst += adjust;  // reset any negative year
+ 357         int marchDoy0 = (int) doyEst;
+ 358 
+ 359         // convert march-based values back to january-based
+ 360         int marchMonth0 = (marchDoy0 * 5 + 2) / 153;
+ 361         int month = (marchMonth0 + 2) % 12 + 1;
+ 362         int dom = marchDoy0 - (marchMonth0 * 306 + 5) / 10 + 1;
+ 363         yearEst += marchMonth0 / 10;
+ 364 
+ 365         // check year now we are certain it is correct
+ 366         int year = YEAR.checkValidIntValue(yearEst);
+ 367         return new LocalDate(year, month, dom);
+ 368     }
+ 369 
+ 370     //-----------------------------------------------------------------------
+ 371     /**
+ 372      * Obtains an instance of {@code LocalDate} from a temporal object.
+ 373      * &lt;p&gt;
+ 374      * This obtains a local date based on the specified temporal.
+ 375      * A {@code TemporalAccessor} represents an arbitrary set of date and time information,
+ 376      * which this factory converts to an instance of {@code LocalDate}.
+ 377      * &lt;p&gt;
+ 378      * The conversion uses the {@link TemporalQueries#localDate()} query, which relies
+ 379      * on extracting the {@link ChronoField#EPOCH_DAY EPOCH_DAY} field.
+ 380      * &lt;p&gt;
+ 381      * This method matches the signature of the functional interface {@link TemporalQuery}
+ 382      * allowing it to be used as a query via method reference, {@code LocalDate::from}.
+ 383      *
+ 384      * @param temporal  the temporal object to convert, not null
+ 385      * @return the local date, not null
+ 386      * @throws DateTimeException if unable to convert to a {@code LocalDate}
+ 387      */
+ 388     public static LocalDate from(TemporalAccessor temporal) {
+ 389         Objects.requireNonNull(temporal, "temporal");
+ 390         LocalDate date = temporal.query(TemporalQueries.localDate());
+ 391         if (date == null) {
+ 392             throw new DateTimeException("Unable to obtain LocalDate from TemporalAccessor: " +
+ 393                     temporal + " of type " + temporal.getClass().getName());
+ 394         }
+ 395         return date;
+ 396     }
+ 397 
+ 398     //-----------------------------------------------------------------------
+ 399     /**
+ 400      * Obtains an instance of {@code LocalDate} from a text string such as {@code 2007-12-03}.
+ 401      * &lt;p&gt;
+ 402      * The string must represent a valid date and is parsed using
+ 403      * {@link java.time.format.DateTimeFormatter#ISO_LOCAL_DATE}.
+ 404      *
+ 405      * @param text  the text to parse such as "2007-12-03", not null
+ 406      * @return the parsed local date, not null
+ 407      * @throws DateTimeParseException if the text cannot be parsed
+ 408      */
+ 409     public static LocalDate parse(CharSequence text) {
+ 410         return parse(text, DateTimeFormatter.ISO_LOCAL_DATE);
+ 411     }
+ 412 
+ 413     /**
+ 414      * Obtains an instance of {@code LocalDate} from a text string using a specific formatter.
+ 415      * &lt;p&gt;
+ 416      * The text is parsed using the formatter, returning a date.
+ 417      *
+ 418      * @param text  the text to parse, not null
+ 419      * @param formatter  the formatter to use, not null
+ 420      * @return the parsed local date, not null
+ 421      * @throws DateTimeParseException if the text cannot be parsed
+ 422      */
+ 423     public static LocalDate parse(CharSequence text, DateTimeFormatter formatter) {
+ 424         Objects.requireNonNull(formatter, "formatter");
+ 425         return formatter.parse(text, LocalDate::from);
+ 426     }
+ 427 
+ 428     //-----------------------------------------------------------------------
+ 429     /**
+ 430      * Creates a local date from the year, month and day fields.
+ 431      *
+ 432      * @param year  the year to represent, validated from MIN_YEAR to MAX_YEAR
+ 433      * @param month  the month-of-year to represent, from 1 to 12, validated
+ 434      * @param dayOfMonth  the day-of-month to represent, validated from 1 to 31
+ 435      * @return the local date, not null
+ 436      * @throws DateTimeException if the day-of-month is invalid for the month-year
+ 437      */
+ 438     private static LocalDate create(int year, int month, int dayOfMonth) {
+ 439         if (dayOfMonth &gt; 28) {
+ 440             int dom = 31;
+ 441             switch (month) {
+ 442                 case 2:
+ 443                     dom = (IsoChronology.INSTANCE.isLeapYear(year) ? 29 : 28);
+ 444                     break;
+ 445                 case 4:
+ 446                 case 6:
+ 447                 case 9:
+ 448                 case 11:
+ 449                     dom = 30;
+ 450                     break;
+ 451             }
+ 452             if (dayOfMonth &gt; dom) {
+ 453                 if (dayOfMonth == 29) {
+ 454                     throw new DateTimeException("Invalid date 'February 29' as '" + year + "' is not a leap year");
+ 455                 } else {
+ 456                     throw new DateTimeException("Invalid date '" + Month.of(month).name() + " " + dayOfMonth + "'");
+ 457                 }
+ 458             }
+ 459         }
+ 460         return new LocalDate(year, month, dayOfMonth);
+ 461     }
+ 462 
+ 463     /**
+ 464      * Resolves the date, resolving days past the end of month.
+ 465      *
+ 466      * @param year  the year to represent, validated from MIN_YEAR to MAX_YEAR
+ 467      * @param month  the month-of-year to represent, validated from 1 to 12
+ 468      * @param day  the day-of-month to represent, validated from 1 to 31
+ 469      * @return the resolved date, not null
+ 470      */
+ 471     private static LocalDate resolvePreviousValid(int year, int month, int day) {
+ 472         switch (month) {
+ 473             case 2:
+ 474                 day = Math.min(day, IsoChronology.INSTANCE.isLeapYear(year) ? 29 : 28);
+ 475                 break;
+ 476             case 4:
+ 477             case 6:
+ 478             case 9:
+ 479             case 11:
+ 480                 day = Math.min(day, 30);
+ 481                 break;
+ 482         }
+ 483         return new LocalDate(year, month, day);
+ 484     }
+ 485 
+ 486     /**
+ 487      * Constructor, previously validated.
+ 488      *
+ 489      * @param year  the year to represent, from MIN_YEAR to MAX_YEAR
+ 490      * @param month  the month-of-year to represent, not null
+ 491      * @param dayOfMonth  the day-of-month to represent, valid for year-month, from 1 to 31
+ 492      */
+ 493     private LocalDate(int year, int month, int dayOfMonth) {
+ 494         this.year = year;
+ 495         this.month = (short) month;
+ 496         this.day = (short) dayOfMonth;
+ 497     }
+ 498 
+ 499     //-----------------------------------------------------------------------
+ 500     /**
+ 501      * Checks if the specified field is supported.
+ 502      * &lt;p&gt;
+ 503      * This checks if this date can be queried for the specified field.
+ 504      * If false, then calling the {@link #range(TemporalField) range},
+ 505      * {@link #get(TemporalField) get} and {@link #with(TemporalField, long)}
+ 506      * methods will throw an exception.
+ 507      * &lt;p&gt;
+ 508      * If the field is a {@link ChronoField} then the query is implemented here.
+ 509      * The supported fields are:
+ 510      * &lt;ul&gt;
+ 511      * &lt;li&gt;{@code DAY_OF_WEEK}
+ 512      * &lt;li&gt;{@code ALIGNED_DAY_OF_WEEK_IN_MONTH}
+ 513      * &lt;li&gt;{@code ALIGNED_DAY_OF_WEEK_IN_YEAR}
+ 514      * &lt;li&gt;{@code DAY_OF_MONTH}
+ 515      * &lt;li&gt;{@code DAY_OF_YEAR}
+ 516      * &lt;li&gt;{@code EPOCH_DAY}
+ 517      * &lt;li&gt;{@code ALIGNED_WEEK_OF_MONTH}
+ 518      * &lt;li&gt;{@code ALIGNED_WEEK_OF_YEAR}
+ 519      * &lt;li&gt;{@code MONTH_OF_YEAR}
+ 520      * &lt;li&gt;{@code PROLEPTIC_MONTH}
+ 521      * &lt;li&gt;{@code YEAR_OF_ERA}
+ 522      * &lt;li&gt;{@code YEAR}
+ 523      * &lt;li&gt;{@code ERA}
+ 524      * &lt;/ul&gt;
+ 525      * All other {@code ChronoField} instances will return false.
+ 526      * &lt;p&gt;
+ 527      * If the field is not a {@code ChronoField}, then the result of this method
+ 528      * is obtained by invoking {@code TemporalField.isSupportedBy(TemporalAccessor)}
+ 529      * passing {@code this} as the argument.
+ 530      * Whether the field is supported is determined by the field.
+ 531      *
+ 532      * @param field  the field to check, null returns false
+ 533      * @return true if the field is supported on this date, false if not
+ 534      */
+ 535     @Override  // override for Javadoc
+ 536     public boolean isSupported(TemporalField field) {
+ 537         return ChronoLocalDate.super.isSupported(field);
+ 538     }
+ 539 
+ 540     /**
+ 541      * Checks if the specified unit is supported.
+ 542      * &lt;p&gt;
+ 543      * This checks if the specified unit can be added to, or subtracted from, this date.
+ 544      * If false, then calling the {@link #plus(long, TemporalUnit)} and
+ 545      * {@link #minus(long, TemporalUnit) minus} methods will throw an exception.
+ 546      * &lt;p&gt;
+ 547      * If the unit is a {@link ChronoUnit} then the query is implemented here.
+ 548      * The supported units are:
+ 549      * &lt;ul&gt;
+ 550      * &lt;li&gt;{@code DAYS}
+ 551      * &lt;li&gt;{@code WEEKS}
+ 552      * &lt;li&gt;{@code MONTHS}
+ 553      * &lt;li&gt;{@code YEARS}
+ 554      * &lt;li&gt;{@code DECADES}
+ 555      * &lt;li&gt;{@code CENTURIES}
+ 556      * &lt;li&gt;{@code MILLENNIA}
+ 557      * &lt;li&gt;{@code ERAS}
+ 558      * &lt;/ul&gt;
+ 559      * All other {@code ChronoUnit} instances will return false.
+ 560      * &lt;p&gt;
+ 561      * If the unit is not a {@code ChronoUnit}, then the result of this method
+ 562      * is obtained by invoking {@code TemporalUnit.isSupportedBy(Temporal)}
+ 563      * passing {@code this} as the argument.
+ 564      * Whether the unit is supported is determined by the unit.
+ 565      *
+ 566      * @param unit  the unit to check, null returns false
+ 567      * @return true if the unit can be added/subtracted, false if not
+ 568      */
+ 569     @Override  // override for Javadoc
+ 570     public boolean isSupported(TemporalUnit unit) {
+ 571         return ChronoLocalDate.super.isSupported(unit);
+ 572     }
+ 573 
+ 574     //-----------------------------------------------------------------------
+ 575     /**
+ 576      * Gets the range of valid values for the specified field.
+ 577      * &lt;p&gt;
+ 578      * The range object expresses the minimum and maximum valid values for a field.
+ 579      * This date is used to enhance the accuracy of the returned range.
+ 580      * If it is not possible to return the range, because the field is not supported
+ 581      * or for some other reason, an exception is thrown.
+ 582      * &lt;p&gt;
+ 583      * If the field is a {@link ChronoField} then the query is implemented here.
+ 584      * The {@link #isSupported(TemporalField) supported fields} will return
+ 585      * appropriate range instances.
+ 586      * All other {@code ChronoField} instances will throw an {@code UnsupportedTemporalTypeException}.
+ 587      * &lt;p&gt;
+ 588      * If the field is not a {@code ChronoField}, then the result of this method
+ 589      * is obtained by invoking {@code TemporalField.rangeRefinedBy(TemporalAccessor)}
+ 590      * passing {@code this} as the argument.
+ 591      * Whether the range can be obtained is determined by the field.
+ 592      *
+ 593      * @param field  the field to query the range for, not null
+ 594      * @return the range of valid values for the field, not null
+ 595      * @throws DateTimeException if the range for the field cannot be obtained
+ 596      * @throws UnsupportedTemporalTypeException if the field is not supported
+ 597      */
+ 598     @Override
+ 599     public ValueRange range(TemporalField field) {
+ 600         if (field instanceof ChronoField) {
+ 601             ChronoField f = (ChronoField) field;
+ 602             if (f.isDateBased()) {
+ 603                 switch (f) {
+ 604                     case DAY_OF_MONTH: return ValueRange.of(1, lengthOfMonth());
+ 605                     case DAY_OF_YEAR: return ValueRange.of(1, lengthOfYear());
+ 606                     case ALIGNED_WEEK_OF_MONTH: return ValueRange.of(1, getMonth() == Month.FEBRUARY &amp;&amp; isLeapYear() == false ? 4 : 5);
+ 607                     case YEAR_OF_ERA:
+ 608                         return (getYear() &lt;= 0 ? ValueRange.of(1, Year.MAX_VALUE + 1) : ValueRange.of(1, Year.MAX_VALUE));
+ 609                 }
+ 610                 return field.range();
+ 611             }
+ 612             throw new UnsupportedTemporalTypeException("Unsupported field: " + field);
+ 613         }
+ 614         return field.rangeRefinedBy(this);
+ 615     }
+ 616 
+ 617     /**
+ 618      * Gets the value of the specified field from this date as an {@code int}.
+ 619      * &lt;p&gt;
+ 620      * This queries this date for the value of the specified field.
+ 621      * The returned value will always be within the valid range of values for the field.
+ 622      * If it is not possible to return the value, because the field is not supported
+ 623      * or for some other reason, an exception is thrown.
+ 624      * &lt;p&gt;
+ 625      * If the field is a {@link ChronoField} then the query is implemented here.
+ 626      * The {@link #isSupported(TemporalField) supported fields} will return valid
+ 627      * values based on this date, except {@code EPOCH_DAY} and {@code PROLEPTIC_MONTH}
+ 628      * which are too large to fit in an {@code int} and throw an {@code UnsupportedTemporalTypeException}.
+ 629      * All other {@code ChronoField} instances will throw an {@code UnsupportedTemporalTypeException}.
+ 630      * &lt;p&gt;
+ 631      * If the field is not a {@code ChronoField}, then the result of this method
+ 632      * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}
+ 633      * passing {@code this} as the argument. Whether the value can be obtained,
+ 634      * and what the value represents, is determined by the field.
+ 635      *
+ 636      * @param field  the field to get, not null
+ 637      * @return the value for the field
+ 638      * @throws DateTimeException if a value for the field cannot be obtained or
+ 639      *         the value is outside the range of valid values for the field
+ 640      * @throws UnsupportedTemporalTypeException if the field is not supported or
+ 641      *         the range of values exceeds an {@code int}
+ 642      * @throws ArithmeticException if numeric overflow occurs
+ 643      */
+ 644     @Override  // override for Javadoc and performance
+ 645     public int get(TemporalField field) {
+ 646         if (field instanceof ChronoField) {
+ 647             return get0(field);
+ 648         }
+ 649         return ChronoLocalDate.super.get(field);
+ 650     }
+ 651 
+ 652     /**
+ 653      * Gets the value of the specified field from this date as a {@code long}.
+ 654      * &lt;p&gt;
+ 655      * This queries this date for the value of the specified field.
+ 656      * If it is not possible to return the value, because the field is not supported
+ 657      * or for some other reason, an exception is thrown.
+ 658      * &lt;p&gt;
+ 659      * If the field is a {@link ChronoField} then the query is implemented here.
+ 660      * The {@link #isSupported(TemporalField) supported fields} will return valid
+ 661      * values based on this date.
+ 662      * All other {@code ChronoField} instances will throw an {@code UnsupportedTemporalTypeException}.
+ 663      * &lt;p&gt;
+ 664      * If the field is not a {@code ChronoField}, then the result of this method
+ 665      * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}
+ 666      * passing {@code this} as the argument. Whether the value can be obtained,
+ 667      * and what the value represents, is determined by the field.
+ 668      *
+ 669      * @param field  the field to get, not null
+ 670      * @return the value for the field
+ 671      * @throws DateTimeException if a value for the field cannot be obtained
+ 672      * @throws UnsupportedTemporalTypeException if the field is not supported
+ 673      * @throws ArithmeticException if numeric overflow occurs
+ 674      */
+ 675     @Override
+ 676     public long getLong(TemporalField field) {
+ 677         if (field instanceof ChronoField) {
+ 678             if (field == EPOCH_DAY) {
+ 679                 return toEpochDay();
+ 680             }
+ 681             if (field == PROLEPTIC_MONTH) {
+ 682                 return getProlepticMonth();
+ 683             }
+ 684             return get0(field);
+ 685         }
+ 686         return field.getFrom(this);
+ 687     }
+ 688 
+ 689     private int get0(TemporalField field) {
+ 690         switch ((ChronoField) field) {
+ 691             case DAY_OF_WEEK: return getDayOfWeek().getValue();
+ 692             case ALIGNED_DAY_OF_WEEK_IN_MONTH: return ((day - 1) % 7) + 1;
+ 693             case ALIGNED_DAY_OF_WEEK_IN_YEAR: return ((getDayOfYear() - 1) % 7) + 1;
+ 694             case DAY_OF_MONTH: return day;
+ 695             case DAY_OF_YEAR: return getDayOfYear();
+ 696             case EPOCH_DAY: throw new UnsupportedTemporalTypeException("Invalid field 'EpochDay' for get() method, use getLong() instead");
+ 697             case ALIGNED_WEEK_OF_MONTH: return ((day - 1) / 7) + 1;
+ 698             case ALIGNED_WEEK_OF_YEAR: return ((getDayOfYear() - 1) / 7) + 1;
+ 699             case MONTH_OF_YEAR: return month;
+ 700             case PROLEPTIC_MONTH: throw new UnsupportedTemporalTypeException("Invalid field 'ProlepticMonth' for get() method, use getLong() instead");
+ 701             case YEAR_OF_ERA: return (year &gt;= 1 ? year : 1 - year);
+ 702             case YEAR: return year;
+ 703             case ERA: return (year &gt;= 1 ? 1 : 0);
+ 704         }
+ 705         throw new UnsupportedTemporalTypeException("Unsupported field: " + field);
+ 706     }
+ 707 
+ 708     private long getProlepticMonth() {
+ 709         return (year * 12L + month - 1);
+ 710     }
+ 711 
+ 712     //-----------------------------------------------------------------------
+ 713     /**
+ 714      * Gets the chronology of this date, which is the ISO calendar system.
+ 715      * &lt;p&gt;
+ 716      * The {@code Chronology} represents the calendar system in use.
+ 717      * The ISO-8601 calendar system is the modern civil calendar system used today
+ 718      * in most of the world. It is equivalent to the proleptic Gregorian calendar
+ 719      * system, in which today's rules for leap years are applied for all time.
+ 720      *
+ 721      * @return the ISO chronology, not null
+ 722      */
+ 723     @Override
+ 724     public IsoChronology getChronology() {
+ 725         return IsoChronology.INSTANCE;
+ 726     }
+ 727 
+ 728     /**
+ 729      * Gets the era applicable at this date.
+ 730      * &lt;p&gt;
+ 731      * The official ISO-8601 standard does not define eras, however {@code IsoChronology} does.
+ 732      * It defines two eras, 'CE' from year one onwards and 'BCE' from year zero backwards.
+ 733      * Since dates before the Julian-Gregorian cutover are not in line with history,
+ 734      * the cutover between 'BCE' and 'CE' is also not aligned with the commonly used
+ 735      * eras, often referred to using 'BC' and 'AD'.
+ 736      * &lt;p&gt;
+ 737      * Users of this class should typically ignore this method as it exists primarily
+ 738      * to fulfill the {@link ChronoLocalDate} contract where it is necessary to support
+ 739      * the Japanese calendar system.
+ 740      *
+ 741      * @return the IsoEra applicable at this date, not null
+ 742      */
+ 743     @Override // override for Javadoc
+ 744     public IsoEra getEra() {
+ 745         return (getYear() &gt;= 1 ? IsoEra.CE : IsoEra.BCE);
+ 746     }
+ 747 
+ 748     /**
+ 749      * Gets the year field.
+ 750      * &lt;p&gt;
+ 751      * This method returns the primitive {@code int} value for the year.
+ 752      * &lt;p&gt;
+ 753      * The year returned by this method is proleptic as per {@code get(YEAR)}.
+ 754      * To obtain the year-of-era, use {@code get(YEAR_OF_ERA)}.
+ 755      *
+ 756      * @return the year, from MIN_YEAR to MAX_YEAR
+ 757      */
+ 758     public int getYear() {
+ 759         return year;
+ 760     }
+ 761 
+ 762     /**
+ 763      * Gets the month-of-year field from 1 to 12.
+ 764      * &lt;p&gt;
+ 765      * This method returns the month as an {@code int} from 1 to 12.
+ 766      * Application code is frequently clearer if the enum {@link Month}
+ 767      * is used by calling {@link #getMonth()}.
+ 768      *
+ 769      * @return the month-of-year, from 1 to 12
+ 770      * @see #getMonth()
+ 771      */
+ 772     public int getMonthValue() {
+ 773         return month;
+ 774     }
+ 775 
+ 776     /**
+ 777      * Gets the month-of-year field using the {@code Month} enum.
+ 778      * &lt;p&gt;
+ 779      * This method returns the enum {@link Month} for the month.
+ 780      * This avoids confusion as to what {@code int} values mean.
+ 781      * If you need access to the primitive {@code int} value then the enum
+ 782      * provides the {@link Month#getValue() int value}.
+ 783      *
+ 784      * @return the month-of-year, not null
+ 785      * @see #getMonthValue()
+ 786      */
+ 787     public Month getMonth() {
+ 788         return Month.of(month);
+ 789     }
+ 790 
+ 791     /**
+ 792      * Gets the day-of-month field.
+ 793      * &lt;p&gt;
+ 794      * This method returns the primitive {@code int} value for the day-of-month.
+ 795      *
+ 796      * @return the day-of-month, from 1 to 31
+ 797      */
+ 798     public int getDayOfMonth() {
+ 799         return day;
+ 800     }
+ 801 
+ 802     /**
+ 803      * Gets the day-of-year field.
+ 804      * &lt;p&gt;
+ 805      * This method returns the primitive {@code int} value for the day-of-year.
+ 806      *
+ 807      * @return the day-of-year, from 1 to 365, or 366 in a leap year
+ 808      */
+ 809     public int getDayOfYear() {
+ 810         return getMonth().firstDayOfYear(isLeapYear()) + day - 1;
+ 811     }
+ 812 
+ 813     /**
+ 814      * Gets the day-of-week field, which is an enum {@code DayOfWeek}.
+ 815      * &lt;p&gt;
+ 816      * This method returns the enum {@link DayOfWeek} for the day-of-week.
+ 817      * This avoids confusion as to what {@code int} values mean.
+ 818      * If you need access to the primitive {@code int} value then the enum
+ 819      * provides the {@link DayOfWeek#getValue() int value}.
+ 820      * &lt;p&gt;
+ 821      * Additional information can be obtained from the {@code DayOfWeek}.
+ 822      * This includes textual names of the values.
+ 823      *
+ 824      * @return the day-of-week, not null
+ 825      */
+ 826     public DayOfWeek getDayOfWeek() {
+ 827         int dow0 = (int)Math.floorMod(toEpochDay() + 3, 7);
+ 828         return DayOfWeek.of(dow0 + 1);
+ 829     }
+ 830 
+ 831     //-----------------------------------------------------------------------
+ 832     /**
+ 833      * Checks if the year is a leap year, according to the ISO proleptic
+ 834      * calendar system rules.
+ 835      * &lt;p&gt;
+ 836      * This method applies the current rules for leap years across the whole time-line.
+ 837      * In general, a year is a leap year if it is divisible by four without
+ 838      * remainder. However, years divisible by 100, are not leap years, with
+ 839      * the exception of years divisible by 400 which are.
+ 840      * &lt;p&gt;
+ 841      * For example, 1904 is a leap year it is divisible by 4.
+ 842      * 1900 was not a leap year as it is divisible by 100, however 2000 was a
+ 843      * leap year as it is divisible by 400.
+ 844      * &lt;p&gt;
+ 845      * The calculation is proleptic - applying the same rules into the far future and far past.
+ 846      * This is historically inaccurate, but is correct for the ISO-8601 standard.
+ 847      *
+ 848      * @return true if the year is leap, false otherwise
+ 849      */
+ 850     @Override // override for Javadoc and performance
+ 851     public boolean isLeapYear() {
+ 852         return IsoChronology.INSTANCE.isLeapYear(year);
+ 853     }
+ 854 
+ 855     /**
+ 856      * Returns the length of the month represented by this date.
+ 857      * &lt;p&gt;
+ 858      * This returns the length of the month in days.
+ 859      * For example, a date in January would return 31.
+ 860      *
+ 861      * @return the length of the month in days
+ 862      */
+ 863     @Override
+ 864     public int lengthOfMonth() {
+ 865         switch (month) {
+ 866             case 2:
+ 867                 return (isLeapYear() ? 29 : 28);
+ 868             case 4:
+ 869             case 6:
+ 870             case 9:
+ 871             case 11:
+ 872                 return 30;
+ 873             default:
+ 874                 return 31;
+ 875         }
+ 876     }
+ 877 
+ 878     /**
+ 879      * Returns the length of the year represented by this date.
+ 880      * &lt;p&gt;
+ 881      * This returns the length of the year in days, either 365 or 366.
+ 882      *
+ 883      * @return 366 if the year is leap, 365 otherwise
+ 884      */
+ 885     @Override // override for Javadoc and performance
+ 886     public int lengthOfYear() {
+ 887         return (isLeapYear() ? 366 : 365);
+ 888     }
+ 889 
+ 890     //-----------------------------------------------------------------------
+ 891     /**
+ 892      * Returns an adjusted copy of this date.
+ 893      * &lt;p&gt;
+ 894      * This returns a {@code LocalDate}, based on this one, with the date adjusted.
+ 895      * The adjustment takes place using the specified adjuster strategy object.
+ 896      * Read the documentation of the adjuster to understand what adjustment will be made.
+ 897      * &lt;p&gt;
+ 898      * A simple adjuster might simply set the one of the fields, such as the year field.
+ 899      * A more complex adjuster might set the date to the last day of the month.
+ 900      * &lt;p&gt;
+ 901      * A selection of common adjustments is provided in
+ 902      * {@link java.time.temporal.TemporalAdjusters TemporalAdjusters}.
+ 903      * These include finding the "last day of the month" and "next Wednesday".
+ 904      * Key date-time classes also implement the {@code TemporalAdjuster} interface,
+ 905      * such as {@link Month} and {@link java.time.MonthDay MonthDay}.
+ 906      * The adjuster is responsible for handling special cases, such as the varying
+ 907      * lengths of month and leap years.
+ 908      * &lt;p&gt;
+ 909      * For example this code returns a date on the last day of July:
+ 910      * &lt;pre&gt;
+ 911      *  import static java.time.Month.*;
+ 912      *  import static java.time.temporal.TemporalAdjusters.*;
+ 913      *
+ 914      *  result = localDate.with(JULY).with(lastDayOfMonth());
+ 915      * &lt;/pre&gt;
+ 916      * &lt;p&gt;
+ 917      * The result of this method is obtained by invoking the
+ 918      * {@link TemporalAdjuster#adjustInto(Temporal)} method on the
+ 919      * specified adjuster passing {@code this} as the argument.
+ 920      * &lt;p&gt;
+ 921      * This instance is immutable and unaffected by this method call.
+ 922      *
+ 923      * @param adjuster the adjuster to use, not null
+ 924      * @return a {@code LocalDate} based on {@code this} with the adjustment made, not null
+ 925      * @throws DateTimeException if the adjustment cannot be made
+ 926      * @throws ArithmeticException if numeric overflow occurs
+ 927      */
+ 928     @Override
+ 929     public LocalDate with(TemporalAdjuster adjuster) {
+ 930         // optimizations
+ 931         if (adjuster instanceof LocalDate) {
+ 932             return (LocalDate) adjuster;
+ 933         }
+ 934         return (LocalDate) adjuster.adjustInto(this);
+ 935     }
+ 936 
+ 937     /**
+ 938      * Returns a copy of this date with the specified field set to a new value.
+ 939      * &lt;p&gt;
+ 940      * This returns a {@code LocalDate}, based on this one, with the value
+ 941      * for the specified field changed.
+ 942      * This can be used to change any supported field, such as the year, month or day-of-month.
+ 943      * If it is not possible to set the value, because the field is not supported or for
+ 944      * some other reason, an exception is thrown.
+ 945      * &lt;p&gt;
+ 946      * In some cases, changing the specified field can cause the resulting date to become invalid,
+ 947      * such as changing the month from 31st January to February would make the day-of-month invalid.
+ 948      * In cases like this, the field is responsible for resolving the date. Typically it will choose
+ 949      * the previous valid date, which would be the last valid day of February in this example.
+ 950      * &lt;p&gt;
+ 951      * If the field is a {@link ChronoField} then the adjustment is implemented here.
+ 952      * The supported fields behave as follows:
+ 953      * &lt;ul&gt;
+ 954      * &lt;li&gt;{@code DAY_OF_WEEK} -
+ 955      *  Returns a {@code LocalDate} with the specified day-of-week.
+ 956      *  The date is adjusted up to 6 days forward or backward within the boundary
+ 957      *  of a Monday to Sunday week.
+ 958      * &lt;li&gt;{@code ALIGNED_DAY_OF_WEEK_IN_MONTH} -
+ 959      *  Returns a {@code LocalDate} with the specified aligned-day-of-week.
+ 960      *  The date is adjusted to the specified month-based aligned-day-of-week.
+ 961      *  Aligned weeks are counted such that the first week of a given month starts
+ 962      *  on the first day of that month.
+ 963      *  This may cause the date to be moved up to 6 days into the following month.
+ 964      * &lt;li&gt;{@code ALIGNED_DAY_OF_WEEK_IN_YEAR} -
+ 965      *  Returns a {@code LocalDate} with the specified aligned-day-of-week.
+ 966      *  The date is adjusted to the specified year-based aligned-day-of-week.
+ 967      *  Aligned weeks are counted such that the first week of a given year starts
+ 968      *  on the first day of that year.
+ 969      *  This may cause the date to be moved up to 6 days into the following year.
+ 970      * &lt;li&gt;{@code DAY_OF_MONTH} -
+ 971      *  Returns a {@code LocalDate} with the specified day-of-month.
+ 972      *  The month and year will be unchanged. If the day-of-month is invalid for the
+ 973      *  year and month, then a {@code DateTimeException} is thrown.
+ 974      * &lt;li&gt;{@code DAY_OF_YEAR} -
+ 975      *  Returns a {@code LocalDate} with the specified day-of-year.
+ 976      *  The year will be unchanged. If the day-of-year is invalid for the
+ 977      *  year, then a {@code DateTimeException} is thrown.
+ 978      * &lt;li&gt;{@code EPOCH_DAY} -
+ 979      *  Returns a {@code LocalDate} with the specified epoch-day.
+ 980      *  This completely replaces the date and is equivalent to {@link #ofEpochDay(long)}.
+ 981      * &lt;li&gt;{@code ALIGNED_WEEK_OF_MONTH} -
+ 982      *  Returns a {@code LocalDate} with the specified aligned-week-of-month.
+ 983      *  Aligned weeks are counted such that the first week of a given month starts
+ 984      *  on the first day of that month.
+ 985      *  This adjustment moves the date in whole week chunks to match the specified week.
+ 986      *  The result will have the same day-of-week as this date.
+ 987      *  This may cause the date to be moved into the following month.
+ 988      * &lt;li&gt;{@code ALIGNED_WEEK_OF_YEAR} -
+ 989      *  Returns a {@code LocalDate} with the specified aligned-week-of-year.
+ 990      *  Aligned weeks are counted such that the first week of a given year starts
+ 991      *  on the first day of that year.
+ 992      *  This adjustment moves the date in whole week chunks to match the specified week.
+ 993      *  The result will have the same day-of-week as this date.
+ 994      *  This may cause the date to be moved into the following year.
+ 995      * &lt;li&gt;{@code MONTH_OF_YEAR} -
+ 996      *  Returns a {@code LocalDate} with the specified month-of-year.
+ 997      *  The year will be unchanged. The day-of-month will also be unchanged,
+ 998      *  unless it would be invalid for the new month and year. In that case, the
+ 999      *  day-of-month is adjusted to the maximum valid value for the new month and year.
+1000      * &lt;li&gt;{@code PROLEPTIC_MONTH} -
+1001      *  Returns a {@code LocalDate} with the specified proleptic-month.
+1002      *  The day-of-month will be unchanged, unless it would be invalid for the new month
+1003      *  and year. In that case, the day-of-month is adjusted to the maximum valid value
+1004      *  for the new month and year.
+1005      * &lt;li&gt;{@code YEAR_OF_ERA} -
+1006      *  Returns a {@code LocalDate} with the specified year-of-era.
+1007      *  The era and month will be unchanged. The day-of-month will also be unchanged,
+1008      *  unless it would be invalid for the new month and year. In that case, the
+1009      *  day-of-month is adjusted to the maximum valid value for the new month and year.
+1010      * &lt;li&gt;{@code YEAR} -
+1011      *  Returns a {@code LocalDate} with the specified year.
+1012      *  The month will be unchanged. The day-of-month will also be unchanged,
+1013      *  unless it would be invalid for the new month and year. In that case, the
+1014      *  day-of-month is adjusted to the maximum valid value for the new month and year.
+1015      * &lt;li&gt;{@code ERA} -
+1016      *  Returns a {@code LocalDate} with the specified era.
+1017      *  The year-of-era and month will be unchanged. The day-of-month will also be unchanged,
+1018      *  unless it would be invalid for the new month and year. In that case, the
+1019      *  day-of-month is adjusted to the maximum valid value for the new month and year.
+1020      * &lt;/ul&gt;
+1021      * &lt;p&gt;
+1022      * In all cases, if the new value is outside the valid range of values for the field
+1023      * then a {@code DateTimeException} will be thrown.
+1024      * &lt;p&gt;
+1025      * All other {@code ChronoField} instances will throw an {@code UnsupportedTemporalTypeException}.
+1026      * &lt;p&gt;
+1027      * If the field is not a {@code ChronoField}, then the result of this method
+1028      * is obtained by invoking {@code TemporalField.adjustInto(Temporal, long)}
+1029      * passing {@code this} as the argument. In this case, the field determines
+1030      * whether and how to adjust the instant.
+1031      * &lt;p&gt;
+1032      * This instance is immutable and unaffected by this method call.
+1033      *
+1034      * @param field  the field to set in the result, not null
+1035      * @param newValue  the new value of the field in the result
+1036      * @return a {@code LocalDate} based on {@code this} with the specified field set, not null
+1037      * @throws DateTimeException if the field cannot be set
+1038      * @throws UnsupportedTemporalTypeException if the field is not supported
+1039      * @throws ArithmeticException if numeric overflow occurs
+1040      */
+1041     @Override
+1042     public LocalDate with(TemporalField field, long newValue) {
+1043         if (field instanceof ChronoField) {
+1044             ChronoField f = (ChronoField) field;
+1045             f.checkValidValue(newValue);
+1046             switch (f) {
+1047                 case DAY_OF_WEEK: return plusDays(newValue - getDayOfWeek().getValue());
+1048                 case ALIGNED_DAY_OF_WEEK_IN_MONTH: return plusDays(newValue - getLong(ALIGNED_DAY_OF_WEEK_IN_MONTH));
+1049                 case ALIGNED_DAY_OF_WEEK_IN_YEAR: return plusDays(newValue - getLong(ALIGNED_DAY_OF_WEEK_IN_YEAR));
+1050                 case DAY_OF_MONTH: return withDayOfMonth((int) newValue);
+1051                 case DAY_OF_YEAR: return withDayOfYear((int) newValue);
+1052                 case EPOCH_DAY: return LocalDate.ofEpochDay(newValue);
+1053                 case ALIGNED_WEEK_OF_MONTH: return plusWeeks(newValue - getLong(ALIGNED_WEEK_OF_MONTH));
+1054                 case ALIGNED_WEEK_OF_YEAR: return plusWeeks(newValue - getLong(ALIGNED_WEEK_OF_YEAR));
+1055                 case MONTH_OF_YEAR: return withMonth((int) newValue);
+1056                 case PROLEPTIC_MONTH: return plusMonths(newValue - getProlepticMonth());
+1057                 case YEAR_OF_ERA: return withYear((int) (year &gt;= 1 ? newValue : 1 - newValue));
+1058                 case YEAR: return withYear((int) newValue);
+1059                 case ERA: return (getLong(ERA) == newValue ? this : withYear(1 - year));
+1060             }
+1061             throw new UnsupportedTemporalTypeException("Unsupported field: " + field);
+1062         }
+1063         return field.adjustInto(this, newValue);
+1064     }
+1065 
+1066     //-----------------------------------------------------------------------
+1067     /**
+1068      * Returns a copy of this {@code LocalDate} with the year altered.
+1069      * &lt;p&gt;
+1070      * If the day-of-month is invalid for the year, it will be changed to the last valid day of the month.
+1071      * &lt;p&gt;
+1072      * This instance is immutable and unaffected by this method call.
+1073      *
+1074      * @param year  the year to set in the result, from MIN_YEAR to MAX_YEAR
+1075      * @return a {@code LocalDate} based on this date with the requested year, not null
+1076      * @throws DateTimeException if the year value is invalid
+1077      */
+1078     public LocalDate withYear(int year) {
+1079         if (this.year == year) {
+1080             return this;
+1081         }
+1082         YEAR.checkValidValue(year);
+1083         return resolvePreviousValid(year, month, day);
+1084     }
+1085 
+1086     /**
+1087      * Returns a copy of this {@code LocalDate} with the month-of-year altered.
+1088      * &lt;p&gt;
+1089      * If the day-of-month is invalid for the year, it will be changed to the last valid day of the month.
+1090      * &lt;p&gt;
+1091      * This instance is immutable and unaffected by this method call.
+1092      *
+1093      * @param month  the month-of-year to set in the result, from 1 (January) to 12 (December)
+1094      * @return a {@code LocalDate} based on this date with the requested month, not null
+1095      * @throws DateTimeException if the month-of-year value is invalid
+1096      */
+1097     public LocalDate withMonth(int month) {
+1098         if (this.month == month) {
+1099             return this;
+1100         }
+1101         MONTH_OF_YEAR.checkValidValue(month);
+1102         return resolvePreviousValid(year, month, day);
+1103     }
+1104 
+1105     /**
+1106      * Returns a copy of this {@code LocalDate} with the day-of-month altered.
+1107      * &lt;p&gt;
+1108      * If the resulting date is invalid, an exception is thrown.
+1109      * &lt;p&gt;
+1110      * This instance is immutable and unaffected by this method call.
+1111      *
+1112      * @param dayOfMonth  the day-of-month to set in the result, from 1 to 28-31
+1113      * @return a {@code LocalDate} based on this date with the requested day, not null
+1114      * @throws DateTimeException if the day-of-month value is invalid,
+1115      *  or if the day-of-month is invalid for the month-year
+1116      */
+1117     public LocalDate withDayOfMonth(int dayOfMonth) {
+1118         if (this.day == dayOfMonth) {
+1119             return this;
+1120         }
+1121         return of(year, month, dayOfMonth);
+1122     }
+1123 
+1124     /**
+1125      * Returns a copy of this {@code LocalDate} with the day-of-year altered.
+1126      * &lt;p&gt;
+1127      * If the resulting date is invalid, an exception is thrown.
+1128      * &lt;p&gt;
+1129      * This instance is immutable and unaffected by this method call.
+1130      *
+1131      * @param dayOfYear  the day-of-year to set in the result, from 1 to 365-366
+1132      * @return a {@code LocalDate} based on this date with the requested day, not null
+1133      * @throws DateTimeException if the day-of-year value is invalid,
+1134      *  or if the day-of-year is invalid for the year
+1135      */
+1136     public LocalDate withDayOfYear(int dayOfYear) {
+1137         if (this.getDayOfYear() == dayOfYear) {
+1138             return this;
+1139         }
+1140         return ofYearDay(year, dayOfYear);
+1141     }
+1142 
+1143     //-----------------------------------------------------------------------
+1144     /**
+1145      * Returns a copy of this date with the specified amount added.
+1146      * &lt;p&gt;
+1147      * This returns a {@code LocalDate}, based on this one, with the specified amount added.
+1148      * The amount is typically {@link Period} but may be any other type implementing
+1149      * the {@link TemporalAmount} interface.
+1150      * &lt;p&gt;
+1151      * The calculation is delegated to the amount object by calling
+1152      * {@link TemporalAmount#addTo(Temporal)}. The amount implementation is free
+1153      * to implement the addition in any way it wishes, however it typically
+1154      * calls back to {@link #plus(long, TemporalUnit)}. Consult the documentation
+1155      * of the amount implementation to determine if it can be successfully added.
+1156      * &lt;p&gt;
+1157      * This instance is immutable and unaffected by this method call.
+1158      *
+1159      * @param amountToAdd  the amount to add, not null
+1160      * @return a {@code LocalDate} based on this date with the addition made, not null
+1161      * @throws DateTimeException if the addition cannot be made
+1162      * @throws ArithmeticException if numeric overflow occurs
+1163      */
+1164     @Override
+1165     public LocalDate plus(TemporalAmount amountToAdd) {
+1166         if (amountToAdd instanceof Period) {
+1167             Period periodToAdd = (Period) amountToAdd;
+1168             return plusMonths(periodToAdd.toTotalMonths()).plusDays(periodToAdd.getDays());
+1169         }
+1170         Objects.requireNonNull(amountToAdd, "amountToAdd");
+1171         return (LocalDate) amountToAdd.addTo(this);
+1172     }
+1173 
+1174     /**
+1175      * Returns a copy of this date with the specified amount added.
+1176      * &lt;p&gt;
+1177      * This returns a {@code LocalDate}, based on this one, with the amount
+1178      * in terms of the unit added. If it is not possible to add the amount, because the
+1179      * unit is not supported or for some other reason, an exception is thrown.
+1180      * &lt;p&gt;
+1181      * In some cases, adding the amount can cause the resulting date to become invalid.
+1182      * For example, adding one month to 31st January would result in 31st February.
+1183      * In cases like this, the unit is responsible for resolving the date.
+1184      * Typically it will choose the previous valid date, which would be the last valid
+1185      * day of February in this example.
+1186      * &lt;p&gt;
+1187      * If the field is a {@link ChronoUnit} then the addition is implemented here.
+1188      * The supported fields behave as follows:
+1189      * &lt;ul&gt;
+1190      * &lt;li&gt;{@code DAYS} -
+1191      *  Returns a {@code LocalDate} with the specified number of days added.
+1192      *  This is equivalent to {@link #plusDays(long)}.
+1193      * &lt;li&gt;{@code WEEKS} -
+1194      *  Returns a {@code LocalDate} with the specified number of weeks added.
+1195      *  This is equivalent to {@link #plusWeeks(long)} and uses a 7 day week.
+1196      * &lt;li&gt;{@code MONTHS} -
+1197      *  Returns a {@code LocalDate} with the specified number of months added.
+1198      *  This is equivalent to {@link #plusMonths(long)}.
+1199      *  The day-of-month will be unchanged unless it would be invalid for the new
+1200      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1201      *  valid value for the new month and year.
+1202      * &lt;li&gt;{@code YEARS} -
+1203      *  Returns a {@code LocalDate} with the specified number of years added.
+1204      *  This is equivalent to {@link #plusYears(long)}.
+1205      *  The day-of-month will be unchanged unless it would be invalid for the new
+1206      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1207      *  valid value for the new month and year.
+1208      * &lt;li&gt;{@code DECADES} -
+1209      *  Returns a {@code LocalDate} with the specified number of decades added.
+1210      *  This is equivalent to calling {@link #plusYears(long)} with the amount
+1211      *  multiplied by 10.
+1212      *  The day-of-month will be unchanged unless it would be invalid for the new
+1213      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1214      *  valid value for the new month and year.
+1215      * &lt;li&gt;{@code CENTURIES} -
+1216      *  Returns a {@code LocalDate} with the specified number of centuries added.
+1217      *  This is equivalent to calling {@link #plusYears(long)} with the amount
+1218      *  multiplied by 100.
+1219      *  The day-of-month will be unchanged unless it would be invalid for the new
+1220      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1221      *  valid value for the new month and year.
+1222      * &lt;li&gt;{@code MILLENNIA} -
+1223      *  Returns a {@code LocalDate} with the specified number of millennia added.
+1224      *  This is equivalent to calling {@link #plusYears(long)} with the amount
+1225      *  multiplied by 1,000.
+1226      *  The day-of-month will be unchanged unless it would be invalid for the new
+1227      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1228      *  valid value for the new month and year.
+1229      * &lt;li&gt;{@code ERAS} -
+1230      *  Returns a {@code LocalDate} with the specified number of eras added.
+1231      *  Only two eras are supported so the amount must be one, zero or minus one.
+1232      *  If the amount is non-zero then the year is changed such that the year-of-era
+1233      *  is unchanged.
+1234      *  The day-of-month will be unchanged unless it would be invalid for the new
+1235      *  month and year. In that case, the day-of-month is adjusted to the maximum
+1236      *  valid value for the new month and year.
+1237      * &lt;/ul&gt;
+1238      * &lt;p&gt;
+1239      * All other {@code ChronoUnit} instances will throw an {@code UnsupportedTemporalTypeException}.
+1240      * &lt;p&gt;
+1241      * If the field is not a {@code ChronoUnit}, then the result of this method
+1242      * is obtained by invoking {@code TemporalUnit.addTo(Temporal, long)}
+1243      * passing {@code this} as the argument. In this case, the unit determines
+1244      * whether and how to perform the addition.
+1245      * &lt;p&gt;
+1246      * This instance is immutable and unaffected by this method call.
+1247      *
+1248      * @param amountToAdd  the amount of the unit to add to the result, may be negative
+1249      * @param unit  the unit of the amount to add, not null
+1250      * @return a {@code LocalDate} based on this date with the specified amount added, not null
+1251      * @throws DateTimeException if the addition cannot be made
+1252      * @throws UnsupportedTemporalTypeException if the unit is not supported
+1253      * @throws ArithmeticException if numeric overflow occurs
+1254      */
+1255     @Override
+1256     public LocalDate plus(long amountToAdd, TemporalUnit unit) {
+1257         if (unit instanceof ChronoUnit) {
+1258             ChronoUnit f = (ChronoUnit) unit;
+1259             switch (f) {
+1260                 case DAYS: return plusDays(amountToAdd);
+1261                 case WEEKS: return plusWeeks(amountToAdd);
+1262                 case MONTHS: return plusMonths(amountToAdd);
+1263                 case YEARS: return plusYears(amountToAdd);
+1264                 case DECADES: return plusYears(Math.multiplyExact(amountToAdd, 10));
+1265                 case CENTURIES: return plusYears(Math.multiplyExact(amountToAdd, 100));
+1266                 case MILLENNIA: return plusYears(Math.multiplyExact(amountToAdd, 1000));
+1267                 case ERAS: return with(ERA, Math.addExact(getLong(ERA), amountToAdd));
+1268             }
+1269             throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
+1270         }
+1271         return unit.addTo(this, amountToAdd);
+1272     }
+1273 
+1274     //-----------------------------------------------------------------------
+1275     /**
+1276      * Returns a copy of this {@code LocalDate} with the specified number of years added.
+1277      * &lt;p&gt;
+1278      * This method adds the specified amount to the years field in three steps:
+1279      * &lt;ol&gt;
+1280      * &lt;li&gt;Add the input years to the year field&lt;/li&gt;
+1281      * &lt;li&gt;Check if the resulting date would be invalid&lt;/li&gt;
+1282      * &lt;li&gt;Adjust the day-of-month to the last valid day if necessary&lt;/li&gt;
+1283      * &lt;/ol&gt;
+1284      * &lt;p&gt;
+1285      * For example, 2008-02-29 (leap year) plus one year would result in the
+1286      * invalid date 2009-02-29 (standard year). Instead of returning an invalid
+1287      * result, the last valid day of the month, 2009-02-28, is selected instead.
+1288      * &lt;p&gt;
+1289      * This instance is immutable and unaffected by this method call.
+1290      *
+1291      * @param yearsToAdd  the years to add, may be negative
+1292      * @return a {@code LocalDate} based on this date with the years added, not null
+1293      * @throws DateTimeException if the result exceeds the supported date range
+1294      */
+1295     public LocalDate plusYears(long yearsToAdd) {
+1296         if (yearsToAdd == 0) {
+1297             return this;
+1298         }
+1299         int newYear = YEAR.checkValidIntValue(year + yearsToAdd);  // safe overflow
+1300         return resolvePreviousValid(newYear, month, day);
+1301     }
+1302 
+1303     /**
+1304      * Returns a copy of this {@code LocalDate} with the specified number of months added.
+1305      * &lt;p&gt;
+1306      * This method adds the specified amount to the months field in three steps:
+1307      * &lt;ol&gt;
+1308      * &lt;li&gt;Add the input months to the month-of-year field&lt;/li&gt;
+1309      * &lt;li&gt;Check if the resulting date would be invalid&lt;/li&gt;
+1310      * &lt;li&gt;Adjust the day-of-month to the last valid day if necessary&lt;/li&gt;
+1311      * &lt;/ol&gt;
+1312      * &lt;p&gt;
+1313      * For example, 2007-03-31 plus one month would result in the invalid date
+1314      * 2007-04-31. Instead of returning an invalid result, the last valid day
+1315      * of the month, 2007-04-30, is selected instead.
+1316      * &lt;p&gt;
+1317      * This instance is immutable and unaffected by this method call.
+1318      *
+1319      * @param monthsToAdd  the months to add, may be negative
+1320      * @return a {@code LocalDate} based on this date with the months added, not null
+1321      * @throws DateTimeException if the result exceeds the supported date range
+1322      */
+1323     public LocalDate plusMonths(long monthsToAdd) {
+1324         if (monthsToAdd == 0) {
+1325             return this;
+1326         }
+1327         long monthCount = year * 12L + (month - 1);
+1328         long calcMonths = monthCount + monthsToAdd;  // safe overflow
+1329         int newYear = YEAR.checkValidIntValue(Math.floorDiv(calcMonths, 12));
+1330         int newMonth = (int)Math.floorMod(calcMonths, 12) + 1;
+1331         return resolvePreviousValid(newYear, newMonth, day);
+1332     }
+1333 
+1334     /**
+1335      * Returns a copy of this {@code LocalDate} with the specified number of weeks added.
+1336      * &lt;p&gt;
+1337      * This method adds the specified amount in weeks to the days field incrementing
+1338      * the month and year fields as necessary to ensure the result remains valid.
+1339      * The result is only invalid if the maximum/minimum year is exceeded.
+1340      * &lt;p&gt;
+1341      * For example, 2008-12-31 plus one week would result in 2009-01-07.
+1342      * &lt;p&gt;
+1343      * This instance is immutable and unaffected by this method call.
+1344      *
+1345      * @param weeksToAdd  the weeks to add, may be negative
+1346      * @return a {@code LocalDate} based on this date with the weeks added, not null
+1347      * @throws DateTimeException if the result exceeds the supported date range
+1348      */
+1349     public LocalDate plusWeeks(long weeksToAdd) {
+1350         return plusDays(Math.multiplyExact(weeksToAdd, 7));
+1351     }
+1352 
+1353     /**
+1354      * Returns a copy of this {@code LocalDate} with the specified number of days added.
+1355      * &lt;p&gt;
+1356      * This method adds the specified amount to the days field incrementing the
+1357      * month and year fields as necessary to ensure the result remains valid.
+1358      * The result is only invalid if the maximum/minimum year is exceeded.
+1359      * &lt;p&gt;
+1360      * For example, 2008-12-31 plus one day would result in 2009-01-01.
+1361      * &lt;p&gt;
+1362      * This instance is immutable and unaffected by this method call.
+1363      *
+1364      * @param daysToAdd  the days to add, may be negative
+1365      * @return a {@code LocalDate} based on this date with the days added, not null
+1366      * @throws DateTimeException if the result exceeds the supported date range
+1367      */
+1368     public LocalDate plusDays(long daysToAdd) {
+1369         if (daysToAdd == 0) {
+1370             return this;
+1371         }
+1372         long mjDay = Math.addExact(toEpochDay(), daysToAdd);
+1373         return LocalDate.ofEpochDay(mjDay);
+1374     }
+1375 
+1376     //-----------------------------------------------------------------------
+1377     /**
+1378      * Returns a copy of this date with the specified amount subtracted.
+1379      * &lt;p&gt;
+1380      * This returns a {@code LocalDate}, based on this one, with the specified amount subtracted.
+1381      * The amount is typically {@link Period} but may be any other type implementing
+1382      * the {@link TemporalAmount} interface.
+1383      * &lt;p&gt;
+1384      * The calculation is delegated to the amount object by calling
+1385      * {@link TemporalAmount#subtractFrom(Temporal)}. The amount implementation is free
+1386      * to implement the subtraction in any way it wishes, however it typically
+1387      * calls back to {@link #minus(long, TemporalUnit)}. Consult the documentation
+1388      * of the amount implementation to determine if it can be successfully subtracted.
+1389      * &lt;p&gt;
+1390      * This instance is immutable and unaffected by this method call.
+1391      *
+1392      * @param amountToSubtract  the amount to subtract, not null
+1393      * @return a {@code LocalDate} based on this date with the subtraction made, not null
+1394      * @throws DateTimeException if the subtraction cannot be made
+1395      * @throws ArithmeticException if numeric overflow occurs
+1396      */
+1397     @Override
+1398     public LocalDate minus(TemporalAmount amountToSubtract) {
+1399         if (amountToSubtract instanceof Period) {
+1400             Period periodToSubtract = (Period) amountToSubtract;
+1401             return minusMonths(periodToSubtract.toTotalMonths()).minusDays(periodToSubtract.getDays());
+1402         }
+1403         Objects.requireNonNull(amountToSubtract, "amountToSubtract");
+1404         return (LocalDate) amountToSubtract.subtractFrom(this);
+1405     }
+1406 
+1407     /**
+1408      * Returns a copy of this date with the specified amount subtracted.
+1409      * &lt;p&gt;
+1410      * This returns a {@code LocalDate}, based on this one, with the amount
+1411      * in terms of the unit subtracted. If it is not possible to subtract the amount,
+1412      * because the unit is not supported or for some other reason, an exception is thrown.
+1413      * &lt;p&gt;
+1414      * This method is equivalent to {@link #plus(long, TemporalUnit)} with the amount negated.
+1415      * See that method for a full description of how addition, and thus subtraction, works.
+1416      * &lt;p&gt;
+1417      * This instance is immutable and unaffected by this method call.
+1418      *
+1419      * @param amountToSubtract  the amount of the unit to subtract from the result, may be negative
+1420      * @param unit  the unit of the amount to subtract, not null
+1421      * @return a {@code LocalDate} based on this date with the specified amount subtracted, not null
+1422      * @throws DateTimeException if the subtraction cannot be made
+1423      * @throws UnsupportedTemporalTypeException if the unit is not supported
+1424      * @throws ArithmeticException if numeric overflow occurs
+1425      */
+1426     @Override
+1427     public LocalDate minus(long amountToSubtract, TemporalUnit unit) {
+1428         return (amountToSubtract == Long.MIN_VALUE ? plus(Long.MAX_VALUE, unit).plus(1, unit) : plus(-amountToSubtract, unit));
+1429     }
+1430 
+1431     //-----------------------------------------------------------------------
+1432     /**
+1433      * Returns a copy of this {@code LocalDate} with the specified number of years subtracted.
+1434      * &lt;p&gt;
+1435      * This method subtracts the specified amount from the years field in three steps:
+1436      * &lt;ol&gt;
+1437      * &lt;li&gt;Subtract the input years from the year field&lt;/li&gt;
+1438      * &lt;li&gt;Check if the resulting date would be invalid&lt;/li&gt;
+1439      * &lt;li&gt;Adjust the day-of-month to the last valid day if necessary&lt;/li&gt;
+1440      * &lt;/ol&gt;
+1441      * &lt;p&gt;
+1442      * For example, 2008-02-29 (leap year) minus one year would result in the
+1443      * invalid date 2007-02-29 (standard year). Instead of returning an invalid
+1444      * result, the last valid day of the month, 2007-02-28, is selected instead.
+1445      * &lt;p&gt;
+1446      * This instance is immutable and unaffected by this method call.
+1447      *
+1448      * @param yearsToSubtract  the years to subtract, may be negative
+1449      * @return a {@code LocalDate} based on this date with the years subtracted, not null
+1450      * @throws DateTimeException if the result exceeds the supported date range
+1451      */
+1452     public LocalDate minusYears(long yearsToSubtract) {
+1453         return (yearsToSubtract == Long.MIN_VALUE ? plusYears(Long.MAX_VALUE).plusYears(1) : plusYears(-yearsToSubtract));
+1454     }
+1455 
+1456     /**
+1457      * Returns a copy of this {@code LocalDate} with the specified number of months subtracted.
+1458      * &lt;p&gt;
+1459      * This method subtracts the specified amount from the months field in three steps:
+1460      * &lt;ol&gt;
+1461      * &lt;li&gt;Subtract the input months from the month-of-year field&lt;/li&gt;
+1462      * &lt;li&gt;Check if the resulting date would be invalid&lt;/li&gt;
+1463      * &lt;li&gt;Adjust the day-of-month to the last valid day if necessary&lt;/li&gt;
+1464      * &lt;/ol&gt;
+1465      * &lt;p&gt;
+1466      * For example, 2007-03-31 minus one month would result in the invalid date
+1467      * 2007-02-31. Instead of returning an invalid result, the last valid day
+1468      * of the month, 2007-02-28, is selected instead.
+1469      * &lt;p&gt;
+1470      * This instance is immutable and unaffected by this method call.
+1471      *
+1472      * @param monthsToSubtract  the months to subtract, may be negative
+1473      * @return a {@code LocalDate} based on this date with the months subtracted, not null
+1474      * @throws DateTimeException if the result exceeds the supported date range
+1475      */
+1476     public LocalDate minusMonths(long monthsToSubtract) {
+1477         return (monthsToSubtract == Long.MIN_VALUE ? plusMonths(Long.MAX_VALUE).plusMonths(1) : plusMonths(-monthsToSubtract));
+1478     }
+1479 
+1480     /**
+1481      * Returns a copy of this {@code LocalDate} with the specified number of weeks subtracted.
+1482      * &lt;p&gt;
+1483      * This method subtracts the specified amount in weeks from the days field decrementing
+1484      * the month and year fields as necessary to ensure the result remains valid.
+1485      * The result is only invalid if the maximum/minimum year is exceeded.
+1486      * &lt;p&gt;
+1487      * For example, 2009-01-07 minus one week would result in 2008-12-31.
+1488      * &lt;p&gt;
+1489      * This instance is immutable and unaffected by this method call.
+1490      *
+1491      * @param weeksToSubtract  the weeks to subtract, may be negative
+1492      * @return a {@code LocalDate} based on this date with the weeks subtracted, not null
+1493      * @throws DateTimeException if the result exceeds the supported date range
+1494      */
+1495     public LocalDate minusWeeks(long weeksToSubtract) {
+1496         return (weeksToSubtract == Long.MIN_VALUE ? plusWeeks(Long.MAX_VALUE).plusWeeks(1) : plusWeeks(-weeksToSubtract));
+1497     }
+1498 
+1499     /**
+1500      * Returns a copy of this {@code LocalDate} with the specified number of days subtracted.
+1501      * &lt;p&gt;
+1502      * This method subtracts the specified amount from the days field decrementing the
+1503      * month and year fields as necessary to ensure the result remains valid.
+1504      * The result is only invalid if the maximum/minimum year is exceeded.
+1505      * &lt;p&gt;
+1506      * For example, 2009-01-01 minus one day would result in 2008-12-31.
+1507      * &lt;p&gt;
+1508      * This instance is immutable and unaffected by this method call.
+1509      *
+1510      * @param daysToSubtract  the days to subtract, may be negative
+1511      * @return a {@code LocalDate} based on this date with the days subtracted, not null
+1512      * @throws DateTimeException if the result exceeds the supported date range
+1513      */
+1514     public LocalDate minusDays(long daysToSubtract) {
+1515         return (daysToSubtract == Long.MIN_VALUE ? plusDays(Long.MAX_VALUE).plusDays(1) : plusDays(-daysToSubtract));
+1516     }
+1517 
+1518     //-----------------------------------------------------------------------
+1519     /**
+1520      * Queries this date using the specified query.
+1521      * &lt;p&gt;
+1522      * This queries this date using the specified query strategy object.
+1523      * The {@code TemporalQuery} object defines the logic to be used to
+1524      * obtain the result. Read the documentation of the query to understand
+1525      * what the result of this method will be.
+1526      * &lt;p&gt;
+1527      * The result of this method is obtained by invoking the
+1528      * {@link TemporalQuery#queryFrom(TemporalAccessor)} method on the
+1529      * specified query passing {@code this} as the argument.
+1530      *
+1531      * @param &lt;R&gt; the type of the result
+1532      * @param query  the query to invoke, not null
+1533      * @return the query result, null may be returned (defined by the query)
+1534      * @throws DateTimeException if unable to query (defined by the query)
+1535      * @throws ArithmeticException if numeric overflow occurs (defined by the query)
+1536      */
+1537     @SuppressWarnings("unchecked")
+1538     @Override
+1539     public &lt;R&gt; R query(TemporalQuery&lt;R&gt; query) {
+1540         if (query == TemporalQueries.localDate()) {
+1541             return (R) this;
+1542         }
+1543         return ChronoLocalDate.super.query(query);
+1544     }
+1545 
+1546     /**
+1547      * Adjusts the specified temporal object to have the same date as this object.
+1548      * &lt;p&gt;
+1549      * This returns a temporal object of the same observable type as the input
+1550      * with the date changed to be the same as this.
+1551      * &lt;p&gt;
+1552      * The adjustment is equivalent to using {@link Temporal#with(TemporalField, long)}
+1553      * passing {@link ChronoField#EPOCH_DAY} as the field.
+1554      * &lt;p&gt;
+1555      * In most cases, it is clearer to reverse the calling pattern by using
+1556      * {@link Temporal#with(TemporalAdjuster)}:
+1557      * &lt;pre&gt;
+1558      *   // these two lines are equivalent, but the second approach is recommended
+1559      *   temporal = thisLocalDate.adjustInto(temporal);
+1560      *   temporal = temporal.with(thisLocalDate);
+1561      * &lt;/pre&gt;
+1562      * &lt;p&gt;
+1563      * This instance is immutable and unaffected by this method call.
+1564      *
+1565      * @param temporal  the target object to be adjusted, not null
+1566      * @return the adjusted object, not null
+1567      * @throws DateTimeException if unable to make the adjustment
+1568      * @throws ArithmeticException if numeric overflow occurs
+1569      */
+1570     @Override  // override for Javadoc
+1571     public Temporal adjustInto(Temporal temporal) {
+1572         return ChronoLocalDate.super.adjustInto(temporal);
+1573     }
+1574 
+1575     /**
+1576      * Calculates the amount of time until another date in terms of the specified unit.
+1577      * &lt;p&gt;
+1578      * This calculates the amount of time between two {@code LocalDate}
+1579      * objects in terms of a single {@code TemporalUnit}.
+1580      * The start and end points are {@code this} and the specified date.
+1581      * The result will be negative if the end is before the start.
+1582      * The {@code Temporal} passed to this method is converted to a
+1583      * {@code LocalDate} using {@link #from(TemporalAccessor)}.
+1584      * For example, the amount in days between two dates can be calculated
+1585      * using {@code startDate.until(endDate, DAYS)}.
+1586      * &lt;p&gt;
+1587      * The calculation returns a whole number, representing the number of
+1588      * complete units between the two dates.
+1589      * For example, the amount in months between 2012-06-15 and 2012-08-14
+1590      * will only be one month as it is one day short of two months.
+1591      * &lt;p&gt;
+1592      * There are two equivalent ways of using this method.
+1593      * The first is to invoke this method.
+1594      * The second is to use {@link TemporalUnit#between(Temporal, Temporal)}:
+1595      * &lt;pre&gt;
+1596      *   // these two lines are equivalent
+1597      *   amount = start.until(end, MONTHS);
+1598      *   amount = MONTHS.between(start, end);
+1599      * &lt;/pre&gt;
+1600      * The choice should be made based on which makes the code more readable.
+1601      * &lt;p&gt;
+1602      * The calculation is implemented in this method for {@link ChronoUnit}.
+1603      * The units {@code DAYS}, {@code WEEKS}, {@code MONTHS}, {@code YEARS},
+1604      * {@code DECADES}, {@code CENTURIES}, {@code MILLENNIA} and {@code ERAS}
+1605      * are supported. Other {@code ChronoUnit} values will throw an exception.
+1606      * &lt;p&gt;
+1607      * If the unit is not a {@code ChronoUnit}, then the result of this method
+1608      * is obtained by invoking {@code TemporalUnit.between(Temporal, Temporal)}
+1609      * passing {@code this} as the first argument and the converted input temporal
+1610      * as the second argument.
+1611      * &lt;p&gt;
+1612      * This instance is immutable and unaffected by this method call.
+1613      *
+1614      * @param endExclusive  the end date, exclusive, which is converted to a {@code LocalDate}, not null
+1615      * @param unit  the unit to measure the amount in, not null
+1616      * @return the amount of time between this date and the end date
+1617      * @throws DateTimeException if the amount cannot be calculated, or the end
+1618      *  temporal cannot be converted to a {@code LocalDate}
+1619      * @throws UnsupportedTemporalTypeException if the unit is not supported
+1620      * @throws ArithmeticException if numeric overflow occurs
+1621      */
+1622     @Override
+1623     public long until(Temporal endExclusive, TemporalUnit unit) {
+1624         LocalDate end = LocalDate.from(endExclusive);
+1625         if (unit instanceof ChronoUnit) {
+1626             switch ((ChronoUnit) unit) {
+1627                 case DAYS: return daysUntil(end);
+1628                 case WEEKS: return daysUntil(end) / 7;
+1629                 case MONTHS: return monthsUntil(end);
+1630                 case YEARS: return monthsUntil(end) / 12;
+1631                 case DECADES: return monthsUntil(end) / 120;
+1632                 case CENTURIES: return monthsUntil(end) / 1200;
+1633                 case MILLENNIA: return monthsUntil(end) / 12000;
+1634                 case ERAS: return end.getLong(ERA) - getLong(ERA);
+1635             }
+1636             throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
+1637         }
+1638         return unit.between(this, end);
+1639     }
+1640 
+1641     long daysUntil(LocalDate end) {
+1642         return end.toEpochDay() - toEpochDay();  // no overflow
+1643     }
+1644 
+1645     private long monthsUntil(LocalDate end) {
+1646         long packed1 = getProlepticMonth() * 32L + getDayOfMonth();  // no overflow
+1647         long packed2 = end.getProlepticMonth() * 32L + end.getDayOfMonth();  // no overflow
+1648         return (packed2 - packed1) / 32;
+1649     }
+1650 
+1651     /**
+1652      * Calculates the period between this date and another date as a {@code Period}.
+1653      * &lt;p&gt;
+1654      * This calculates the period between two dates in terms of years, months and days.
+1655      * The start and end points are {@code this} and the specified date.
+1656      * The result will be negative if the end is before the start.
+1657      * The negative sign will be the same in each of year, month and day.
+1658      * &lt;p&gt;
+1659      * The calculation is performed using the ISO calendar system.
+1660      * If necessary, the input date will be converted to ISO.
+1661      * &lt;p&gt;
+1662      * The start date is included, but the end date is not.
+1663      * The period is calculated by removing complete months, then calculating
+1664      * the remaining number of days, adjusting to ensure that both have the same sign.
+1665      * The number of months is then normalized into years and months based on a 12 month year.
+1666      * A month is considered to be complete if the end day-of-month is greater
+1667      * than or equal to the start day-of-month.
+1668      * For example, from {@code 2010-01-15} to {@code 2011-03-18} is "1 year, 2 months and 3 days".
+1669      * &lt;p&gt;
+1670      * There are two equivalent ways of using this method.
+1671      * The first is to invoke this method.
+1672      * The second is to use {@link Period#between(LocalDate, LocalDate)}:
+1673      * &lt;pre&gt;
+1674      *   // these two lines are equivalent
+1675      *   period = start.until(end);
+1676      *   period = Period.between(start, end);
+1677      * &lt;/pre&gt;
+1678      * The choice should be made based on which makes the code more readable.
+1679      *
+1680      * @param endDateExclusive  the end date, exclusive, which may be in any chronology, not null
+1681      * @return the period between this date and the end date, not null
+1682      */
+1683     @Override
+1684     public Period until(ChronoLocalDate endDateExclusive) {
+1685         LocalDate end = LocalDate.from(endDateExclusive);
+1686         long totalMonths = end.getProlepticMonth() - this.getProlepticMonth();  // safe
+1687         int days = end.day - this.day;
+1688         if (totalMonths &gt; 0 &amp;&amp; days &lt; 0) {
+1689             totalMonths--;
+1690             LocalDate calcDate = this.plusMonths(totalMonths);
+1691             days = (int) (end.toEpochDay() - calcDate.toEpochDay());  // safe
+1692         } else if (totalMonths &lt; 0 &amp;&amp; days &gt; 0) {
+1693             totalMonths++;
+1694             days -= end.lengthOfMonth();
+1695         }
+1696         long years = totalMonths / 12;  // safe
+1697         int months = (int) (totalMonths % 12);  // safe
+1698         return Period.of(Math.toIntExact(years), months, days);
+<a name="2" id="anc2"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1699     }
+1700 
+1701     /**
+1702      * Formats this date using the specified formatter.
+1703      * &lt;p&gt;
+1704      * This date will be passed to the formatter to produce a string.
+1705      *
+1706      * @param formatter  the formatter to use, not null
+1707      * @return the formatted date string, not null
+1708      * @throws DateTimeException if an error occurs during printing
+1709      */
+1710     @Override  // override for Javadoc and performance
+1711     public String format(DateTimeFormatter formatter) {
+1712         Objects.requireNonNull(formatter, "formatter");
+1713         return formatter.format(this);
+1714     }
+1715 
+1716     //-----------------------------------------------------------------------
+1717     /**
+1718      * Combines this date with a time to create a {@code LocalDateTime}.
+1719      * &lt;p&gt;
+1720      * This returns a {@code LocalDateTime} formed from this date at the specified time.
+1721      * All possible combinations of date and time are valid.
+1722      *
+1723      * @param time  the time to combine with, not null
+1724      * @return the local date-time formed from this date and the specified time, not null
+1725      */
+1726     @Override
+1727     public LocalDateTime atTime(LocalTime time) {
+1728         return LocalDateTime.of(this, time);
+1729     }
+1730 
+1731     /**
+1732      * Combines this date with a time to create a {@code LocalDateTime}.
+1733      * &lt;p&gt;
+1734      * This returns a {@code LocalDateTime} formed from this date at the
+1735      * specified hour and minute.
+1736      * The seconds and nanosecond fields will be set to zero.
+1737      * The individual time fields must be within their valid range.
+1738      * All possible combinations of date and time are valid.
+1739      *
+1740      * @param hour  the hour-of-day to use, from 0 to 23
+1741      * @param minute  the minute-of-hour to use, from 0 to 59
+1742      * @return the local date-time formed from this date and the specified time, not null
+1743      * @throws DateTimeException if the value of any field is out of range
+1744      */
+1745     public LocalDateTime atTime(int hour, int minute) {
+1746         return atTime(LocalTime.of(hour, minute));
+1747     }
+1748 
+1749     /**
+1750      * Combines this date with a time to create a {@code LocalDateTime}.
+1751      * &lt;p&gt;
+1752      * This returns a {@code LocalDateTime} formed from this date at the
+1753      * specified hour, minute and second.
+1754      * The nanosecond field will be set to zero.
+1755      * The individual time fields must be within their valid range.
+1756      * All possible combinations of date and time are valid.
+1757      *
+1758      * @param hour  the hour-of-day to use, from 0 to 23
+1759      * @param minute  the minute-of-hour to use, from 0 to 59
+1760      * @param second  the second-of-minute to represent, from 0 to 59
+1761      * @return the local date-time formed from this date and the specified time, not null
+1762      * @throws DateTimeException if the value of any field is out of range
+1763      */
+1764     public LocalDateTime atTime(int hour, int minute, int second) {
+1765         return atTime(LocalTime.of(hour, minute, second));
+1766     }
+1767 
+1768     /**
+1769      * Combines this date with a time to create a {@code LocalDateTime}.
+1770      * &lt;p&gt;
+1771      * This returns a {@code LocalDateTime} formed from this date at the
+1772      * specified hour, minute, second and nanosecond.
+1773      * The individual time fields must be within their valid range.
+1774      * All possible combinations of date and time are valid.
+1775      *
+1776      * @param hour  the hour-of-day to use, from 0 to 23
+1777      * @param minute  the minute-of-hour to use, from 0 to 59
+1778      * @param second  the second-of-minute to represent, from 0 to 59
+1779      * @param nanoOfSecond  the nano-of-second to represent, from 0 to 999,999,999
+1780      * @return the local date-time formed from this date and the specified time, not null
+1781      * @throws DateTimeException if the value of any field is out of range
+1782      */
+1783     public LocalDateTime atTime(int hour, int minute, int second, int nanoOfSecond) {
+1784         return atTime(LocalTime.of(hour, minute, second, nanoOfSecond));
+1785     }
+1786 
+1787     /**
+1788      * Combines this date with an offset time to create an {@code OffsetDateTime}.
+1789      * &lt;p&gt;
+1790      * This returns an {@code OffsetDateTime} formed from this date at the specified time.
+1791      * All possible combinations of date and time are valid.
+1792      *
+1793      * @param time  the time to combine with, not null
+1794      * @return the offset date-time formed from this date and the specified time, not null
+1795      */
+1796     public OffsetDateTime atTime(OffsetTime time) {
+1797         return OffsetDateTime.of(LocalDateTime.of(this, time.toLocalTime()), time.getOffset());
+1798     }
+1799 
+1800     /**
+1801      * Combines this date with the time of midnight to create a {@code LocalDateTime}
+1802      * at the start of this date.
+1803      * &lt;p&gt;
+1804      * This returns a {@code LocalDateTime} formed from this date at the time of
+1805      * midnight, 00:00, at the start of this date.
+1806      *
+1807      * @return the local date-time of midnight at the start of this date, not null
+1808      */
+1809     public LocalDateTime atStartOfDay() {
+1810         return LocalDateTime.of(this, LocalTime.MIDNIGHT);
+1811     }
+1812 
+1813     /**
+1814      * Returns a zoned date-time from this date at the earliest valid time according
+1815      * to the rules in the time-zone.
+1816      * &lt;p&gt;
+1817      * Time-zone rules, such as daylight savings, mean that not every local date-time
+1818      * is valid for the specified zone, thus the local date-time may not be midnight.
+1819      * &lt;p&gt;
+1820      * In most cases, there is only one valid offset for a local date-time.
+1821      * In the case of an overlap, there are two valid offsets, and the earlier one is used,
+1822      * corresponding to the first occurrence of midnight on the date.
+1823      * In the case of a gap, the zoned date-time will represent the instant just after the gap.
+1824      * &lt;p&gt;
+1825      * If the zone ID is a {@link ZoneOffset}, then the result always has a time of midnight.
+1826      * &lt;p&gt;
+1827      * To convert to a specific time in a given time-zone call {@link #atTime(LocalTime)}
+1828      * followed by {@link LocalDateTime#atZone(ZoneId)}.
+1829      *
+1830      * @param zone  the zone ID to use, not null
+1831      * @return the zoned date-time formed from this date and the earliest valid time for the zone, not null
+1832      */
+1833     public ZonedDateTime atStartOfDay(ZoneId zone) {
+1834         Objects.requireNonNull(zone, "zone");
+1835         // need to handle case where there is a gap from 11:30 to 00:30
+1836         // standard ZDT factory would result in 01:00 rather than 00:30
+1837         LocalDateTime ldt = atTime(LocalTime.MIDNIGHT);
+1838         if (zone instanceof ZoneOffset == false) {
+1839             ZoneRules rules = zone.getRules();
+1840             ZoneOffsetTransition trans = rules.getTransition(ldt);
+1841             if (trans != null &amp;&amp; trans.isGap()) {
+1842                 ldt = trans.getDateTimeAfter();
+1843             }
+1844         }
+1845         return ZonedDateTime.of(ldt, zone);
+1846     }
+1847 
+1848     //-----------------------------------------------------------------------
+1849     @Override
+1850     public long toEpochDay() {
+1851         long y = year;
+1852         long m = month;
+1853         long total = 0;
+1854         total += 365 * y;
+1855         if (y &gt;= 0) {
+1856             total += (y + 3) / 4 - (y + 99) / 100 + (y + 399) / 400;
+1857         } else {
+1858             total -= y / -4 - y / -100 + y / -400;
+1859         }
+1860         total += ((367 * m - 362) / 12);
+1861         total += day - 1;
+1862         if (m &gt; 2) {
+1863             total--;
+1864             if (isLeapYear() == false) {
+1865                 total--;
+1866             }
+1867         }
+1868         return total - DAYS_0000_TO_1970;
+1869     }
+1870 
+1871     /**
+1872      * Converts this {@code LocalDate} to the number of seconds since the epoch
+1873      * of 1970-01-01T00:00:00Z.
+1874      * &lt;p&gt;
+1875      * This combines this local date with the specified time and
+1876      * offset to calculate the epoch-second value, which is the
+1877      * number of elapsed seconds from 1970-01-01T00:00:00Z.
+1878      * Instants on the time-line after the epoch are positive, earlier
+1879      * are negative.
+1880      *
+1881      * @param time the local time, not null
+1882      * @param offset the zone offset, not null
+1883      * @return the number of seconds since the epoch of 1970-01-01T00:00:00Z, may be negative
+1884      * @since 9
+1885      */
+1886     public long toEpochSecond(LocalTime time, ZoneOffset offset) {
+1887         Objects.requireNonNull(time, "time");
+1888         Objects.requireNonNull(offset, "offset");
+1889         long secs = toEpochDay() * SECONDS_PER_DAY + time.toSecondOfDay();
+1890         secs -= offset.getTotalSeconds();
+1891         return secs;
+1892     }
+1893 
+1894     //-----------------------------------------------------------------------
+1895     /**
+1896      * Compares this date to another date.
+1897      * &lt;p&gt;
+1898      * The comparison is primarily based on the date, from earliest to latest.
+1899      * It is "consistent with equals", as defined by {@link Comparable}.
+1900      * &lt;p&gt;
+1901      * If all the dates being compared are instances of {@code LocalDate},
+1902      * then the comparison will be entirely based on the date.
+1903      * If some dates being compared are in different chronologies, then the
+1904      * chronology is also considered, see {@link java.time.chrono.ChronoLocalDate#compareTo}.
+1905      *
+1906      * @param other  the other date to compare to, not null
+1907      * @return the comparator value, negative if less, positive if greater
+1908      */
+1909     @Override  // override for Javadoc and performance
+1910     public int compareTo(ChronoLocalDate other) {
+1911         if (other instanceof LocalDate) {
+1912             return compareTo0((LocalDate) other);
+1913         }
+1914         return ChronoLocalDate.super.compareTo(other);
+1915     }
+1916 
+1917     int compareTo0(LocalDate otherDate) {
+1918         int cmp = (year - otherDate.year);
+1919         if (cmp == 0) {
+1920             cmp = (month - otherDate.month);
+1921             if (cmp == 0) {
+1922                 cmp = (day - otherDate.day);
+1923             }
+1924         }
+1925         return cmp;
+1926     }
+1927 
+1928     /**
+1929      * Checks if this date is after the specified date.
+1930      * &lt;p&gt;
+1931      * This checks to see if this date represents a point on the
+1932      * local time-line after the other date.
+1933      * &lt;pre&gt;
+1934      *   LocalDate a = LocalDate.of(2012, 6, 30);
+1935      *   LocalDate b = LocalDate.of(2012, 7, 1);
+1936      *   a.isAfter(b) == false
+1937      *   a.isAfter(a) == false
+1938      *   b.isAfter(a) == true
+1939      * &lt;/pre&gt;
+1940      * &lt;p&gt;
+1941      * This method only considers the position of the two dates on the local time-line.
+1942      * It does not take into account the chronology, or calendar system.
+1943      * This is different from the comparison in {@link #compareTo(ChronoLocalDate)},
+1944      * but is the same approach as {@link ChronoLocalDate#timeLineOrder()}.
+1945      *
+1946      * @param other  the other date to compare to, not null
+1947      * @return true if this date is after the specified date
+1948      */
+1949     @Override  // override for Javadoc and performance
+1950     public boolean isAfter(ChronoLocalDate other) {
+1951         if (other instanceof LocalDate) {
+1952             return compareTo0((LocalDate) other) &gt; 0;
+1953         }
+1954         return ChronoLocalDate.super.isAfter(other);
+1955     }
+1956 
+1957     /**
+1958      * Checks if this date is before the specified date.
+1959      * &lt;p&gt;
+1960      * This checks to see if this date represents a point on the
+1961      * local time-line before the other date.
+1962      * &lt;pre&gt;
+1963      *   LocalDate a = LocalDate.of(2012, 6, 30);
+1964      *   LocalDate b = LocalDate.of(2012, 7, 1);
+1965      *   a.isBefore(b) == true
+1966      *   a.isBefore(a) == false
+1967      *   b.isBefore(a) == false
+1968      * &lt;/pre&gt;
+1969      * &lt;p&gt;
+1970      * This method only considers the position of the two dates on the local time-line.
+1971      * It does not take into account the chronology, or calendar system.
+1972      * This is different from the comparison in {@link #compareTo(ChronoLocalDate)},
+1973      * but is the same approach as {@link ChronoLocalDate#timeLineOrder()}.
+1974      *
+1975      * @param other  the other date to compare to, not null
+1976      * @return true if this date is before the specified date
+1977      */
+1978     @Override  // override for Javadoc and performance
+1979     public boolean isBefore(ChronoLocalDate other) {
+1980         if (other instanceof LocalDate) {
+1981             return compareTo0((LocalDate) other) &lt; 0;
+1982         }
+1983         return ChronoLocalDate.super.isBefore(other);
+1984     }
+1985 
+1986     /**
+1987      * Checks if this date is equal to the specified date.
+1988      * &lt;p&gt;
+1989      * This checks to see if this date represents the same point on the
+1990      * local time-line as the other date.
+1991      * &lt;pre&gt;
+1992      *   LocalDate a = LocalDate.of(2012, 6, 30);
+1993      *   LocalDate b = LocalDate.of(2012, 7, 1);
+1994      *   a.isEqual(b) == false
+1995      *   a.isEqual(a) == true
+1996      *   b.isEqual(a) == false
+1997      * &lt;/pre&gt;
+1998      * &lt;p&gt;
+1999      * This method only considers the position of the two dates on the local time-line.
+2000      * It does not take into account the chronology, or calendar system.
+2001      * This is different from the comparison in {@link #compareTo(ChronoLocalDate)}
+2002      * but is the same approach as {@link ChronoLocalDate#timeLineOrder()}.
+2003      *
+2004      * @param other  the other date to compare to, not null
+2005      * @return true if this date is equal to the specified date
+2006      */
+2007     @Override  // override for Javadoc and performance
+2008     public boolean isEqual(ChronoLocalDate other) {
+2009         if (other instanceof LocalDate) {
+2010             return compareTo0((LocalDate) other) == 0;
+2011         }
+2012         return ChronoLocalDate.super.isEqual(other);
+2013     }
+2014 
+2015     //-----------------------------------------------------------------------
+2016     /**
+2017      * Checks if this date is equal to another date.
+2018      * &lt;p&gt;
+2019      * Compares this {@code LocalDate} with another ensuring that the date is the same.
+2020      * &lt;p&gt;
+2021      * Only objects of type {@code LocalDate} are compared, other types return false.
+2022      * To compare the dates of two {@code TemporalAccessor} instances, including dates
+2023      * in two different chronologies, use {@link ChronoField#EPOCH_DAY} as a comparator.
+2024      *
+2025      * @param obj  the object to check, null returns false
+2026      * @return true if this is equal to the other date
+2027      */
+2028     @Override
+2029     public boolean equals(Object obj) {
+2030         if (this == obj) {
+2031             return true;
+2032         }
+2033         if (obj instanceof LocalDate) {
+2034             return compareTo0((LocalDate) obj) == 0;
+2035         }
+2036         return false;
+2037     }
+2038 
+2039     /**
+2040      * A hash code for this date.
+2041      *
+2042      * @return a suitable hash code
+2043      */
+2044     @Override
+2045     public int hashCode() {
+2046         int yearValue = year;
+2047         int monthValue = month;
+2048         int dayValue = day;
+2049         return (yearValue &amp; 0xFFFFF800) ^ ((yearValue &lt;&lt; 11) + (monthValue &lt;&lt; 6) + (dayValue));
+2050     }
+2051 
+2052     //-----------------------------------------------------------------------
+2053     /**
+2054      * Outputs this date as a {@code String}, such as {@code 2007-12-03}.
+2055      * &lt;p&gt;
+2056      * The output will be in the ISO-8601 format {@code uuuu-MM-dd}.
+2057      *
+2058      * @return a string representation of this date, not null
+2059      */
+2060     @Override
+2061     public String toString() {
+2062         int yearValue = year;
+2063         int monthValue = month;
+2064         int dayValue = day;
+2065         int absYear = Math.abs(yearValue);
+2066         StringBuilder buf = new StringBuilder(10);
+2067         if (absYear &lt; 1000) {
+2068             if (yearValue &lt; 0) {
+2069                 buf.append(yearValue - 10000).deleteCharAt(1);
+2070             } else {
+2071                 buf.append(yearValue + 10000).deleteCharAt(0);
+2072             }
+2073         } else {
+2074             if (yearValue &gt; 9999) {
+2075                 buf.append('+');
+2076             }
+2077             buf.append(yearValue);
+2078         }
+2079         return buf.append(monthValue &lt; 10 ? "-0" : "-")
+2080             .append(monthValue)
+2081             .append(dayValue &lt; 10 ? "-0" : "-")
+2082             .append(dayValue)
+2083             .toString();
+2084     }
+2085 
+2086     //-----------------------------------------------------------------------
+2087     /**
+2088      * Writes the object using a
+2089      * &lt;a href="../../serialized-form.html#java.time.Ser"&gt;dedicated serialized form&lt;/a&gt;.
+2090      * @serialData
+2091      * &lt;pre&gt;
+2092      *  out.writeByte(3);  // identifies a LocalDate
+2093      *  out.writeInt(year);
+2094      *  out.writeByte(month);
+2095      *  out.writeByte(day);
+2096      * &lt;/pre&gt;
+2097      *
+2098      * @return the instance of {@code Ser}, not null
+2099      */
+2100     private Object writeReplace() {
+2101         return new Ser(Ser.LOCAL_DATE_TYPE, this);
+2102     }
+2103 
+2104     /**
+2105      * Defend against malicious streams.
+2106      *
+2107      * @param s the stream to read
+2108      * @throws InvalidObjectException always
+2109      */
+2110     private void readObject(ObjectInputStream s) throws InvalidObjectException {
+2111         throw new InvalidObjectException("Deserialization via serialization delegate");
+2112     }
+2113 
+2114     void writeExternal(DataOutput out) throws IOException {
+2115         out.writeInt(year);
+2116         out.writeByte(month);
+2117         out.writeByte(day);
+2118     }
+2119 
+2120     static LocalDate readExternal(DataInput in) throws IOException {
+2121         int year = in.readInt();
+2122         int month = in.readByte();
+2123         int dayOfMonth = in.readByte();
+2124         return LocalDate.of(year, month, dayOfMonth);
+2125     }
+2126 
+2127 }
+<a name="3" id="anc3"></a><b style="font-size: large; color: red">--- EOF ---</b>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre><form name="eof"><input name="value" value="3" type="hidden" /></form></body></html>

@@ -1,0 +1,403 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<!--
+   Note to customizers: the body of the webrev is IDed as SUNWwebrev
+   to allow easy overriding by users of webrev via the userContent.css
+   mechanism available in some browsers.
+
+   For example, to have all "removed" information be red instead of
+   brown, set a rule in your userContent.css file like:
+
+       body#SUNWwebrev span.removed { color: red ! important; }
+-->
+<style type="text/css" media="screen">
+body {
+    background-color: #eeeeee;
+}
+hr {
+    border: none 0;
+    border-top: 1px solid #aaa;
+    height: 1px;
+}
+div.summary {
+    font-size: .8em;
+    border-bottom: 1px solid #aaa;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+div.summary h2 {
+    margin-bottom: 0.3em;
+}
+div.summary table th {
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+}
+span.lineschanged {
+    font-size: 0.7em;
+}
+span.oldmarker {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+}
+span.newmarker {
+    color: green;
+    font-size: large;
+    font-weight: bold;
+}
+span.removed {
+    color: brown;
+}
+span.changed {
+    color: blue;
+}
+span.new {
+    color: blue;
+    font-weight: bold;
+}
+a.print { font-size: x-small; }
+
+</style>
+
+<style type="text/css" media="print">
+pre { font-size: 0.8em; font-family: courier, monospace; }
+span.removed { color: #444; font-style: italic }
+span.changed { font-weight: bold; }
+span.new { font-weight: bold; }
+span.newmarker { font-size: 1.2em; font-weight: bold; }
+span.oldmarker { font-size: 1.2em; font-weight: bold; }
+a.print {display: none}
+hr { border: none 0; border-top: 1px solid #aaa; height: 1px; }
+</style>
+
+<title>jdk Sdiff src/java.base/share/classes/java/time </title>
+</head><body id="SUNWwebrev">
+<center>&lt prev <a href='../../../../../../index.html' target='_top'>index</a> <a href='../../../../../../test/java/time/tck/java/time/TCKLocalDate.java.sdiff.html' target='_top'>next &gt</a></center>
+<h2>src/java.base/share/classes/java/time/LocalDate.java</h2>
+<a class="print" href="javascript:print()">Print this page</a>
+<pre></pre>
+
+<table><tr valign="top">
+<td><pre>
+
+</pre><hr></hr><pre>
+  83 import java.time.chrono.ChronoLocalDate;
+  84 import java.time.chrono.IsoEra;
+  85 import java.time.chrono.IsoChronology;
+  86 import java.time.format.DateTimeFormatter;
+  87 import java.time.format.DateTimeParseException;
+  88 import java.time.temporal.ChronoField;
+  89 import java.time.temporal.ChronoUnit;
+  90 import java.time.temporal.Temporal;
+  91 import java.time.temporal.TemporalAccessor;
+  92 import java.time.temporal.TemporalAdjuster;
+  93 import java.time.temporal.TemporalAmount;
+  94 import java.time.temporal.TemporalField;
+  95 import java.time.temporal.TemporalQueries;
+  96 import java.time.temporal.TemporalQuery;
+  97 import java.time.temporal.TemporalUnit;
+  98 import java.time.temporal.UnsupportedTemporalTypeException;
+  99 import java.time.temporal.ValueRange;
+ 100 import java.time.zone.ZoneOffsetTransition;
+ 101 import java.time.zone.ZoneRules;
+ 102 import java.util.Objects;
+
+
+ 103 
+ 104 /**
+ 105  * A date without a time-zone in the ISO-8601 calendar system,
+ 106  * such as {@code 2007-12-03}.
+ 107  * &lt;p&gt;
+ 108  * {@code LocalDate} is an immutable date-time object that represents a date,
+ 109  * often viewed as year-month-day. Other date fields, such as day-of-year,
+ 110  * day-of-week and week-of-year, can also be accessed.
+ 111  * For example, the value "2nd October 2007" can be stored in a {@code LocalDate}.
+ 112  * &lt;p&gt;
+ 113  * This class does not store or represent a time or time-zone.
+ 114  * Instead, it is a description of the date, as used for birthdays.
+ 115  * It cannot represent an instant on the time-line without additional information
+ 116  * such as an offset or time-zone.
+ 117  * &lt;p&gt;
+ 118  * The ISO-8601 calendar system is the modern civil calendar system used today
+ 119  * in most of the world. It is equivalent to the proleptic Gregorian calendar
+ 120  * system, in which today's rules for leap years are applied for all time.
+ 121  * For most applications written today, the ISO-8601 rules are entirely suitable.
+ 122  * However, any application that makes use of historical dates, and requires them
+
+</pre><hr></hr><pre>
+1679      *
+1680      * @param endDateExclusive  the end date, exclusive, which may be in any chronology, not null
+1681      * @return the period between this date and the end date, not null
+1682      */
+1683     @Override
+1684     public Period until(ChronoLocalDate endDateExclusive) {
+1685         LocalDate end = LocalDate.from(endDateExclusive);
+1686         long totalMonths = end.getProlepticMonth() - this.getProlepticMonth();  // safe
+1687         int days = end.day - this.day;
+1688         if (totalMonths &gt; 0 &amp;&amp; days &lt; 0) {
+1689             totalMonths--;
+1690             LocalDate calcDate = this.plusMonths(totalMonths);
+1691             days = (int) (end.toEpochDay() - calcDate.toEpochDay());  // safe
+1692         } else if (totalMonths &lt; 0 &amp;&amp; days &gt; 0) {
+1693             totalMonths++;
+1694             days -= end.lengthOfMonth();
+1695         }
+1696         long years = totalMonths / 12;  // safe
+1697         int months = (int) (totalMonths % 12);  // safe
+1698         return Period.of(Math.toIntExact(years), months, days);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1699     }
+1700 
+1701     /**
+1702      * Formats this date using the specified formatter.
+1703      * &lt;p&gt;
+1704      * This date will be passed to the formatter to produce a string.
+1705      *
+1706      * @param formatter  the formatter to use, not null
+1707      * @return the formatted date string, not null
+1708      * @throws DateTimeException if an error occurs during printing
+1709      */
+1710     @Override  // override for Javadoc and performance
+1711     public String format(DateTimeFormatter formatter) {
+1712         Objects.requireNonNull(formatter, "formatter");
+1713         return formatter.format(this);
+1714     }
+1715 
+1716     //-----------------------------------------------------------------------
+1717     /**
+1718      * Combines this date with a time to create a {@code LocalDateTime}.
+
+</pre><hr></hr>
+</pre></td><td><pre>
+
+</pre><hr></hr><pre>
+  83 import java.time.chrono.ChronoLocalDate;
+  84 import java.time.chrono.IsoEra;
+  85 import java.time.chrono.IsoChronology;
+  86 import java.time.format.DateTimeFormatter;
+  87 import java.time.format.DateTimeParseException;
+  88 import java.time.temporal.ChronoField;
+  89 import java.time.temporal.ChronoUnit;
+  90 import java.time.temporal.Temporal;
+  91 import java.time.temporal.TemporalAccessor;
+  92 import java.time.temporal.TemporalAdjuster;
+  93 import java.time.temporal.TemporalAmount;
+  94 import java.time.temporal.TemporalField;
+  95 import java.time.temporal.TemporalQueries;
+  96 import java.time.temporal.TemporalQuery;
+  97 import java.time.temporal.TemporalUnit;
+  98 import java.time.temporal.UnsupportedTemporalTypeException;
+  99 import java.time.temporal.ValueRange;
+ 100 import java.time.zone.ZoneOffsetTransition;
+ 101 import java.time.zone.ZoneRules;
+ 102 import java.util.Objects;
+<span class="new"> 103 import java.util.stream.LongStream;</span>
+<span class="new"> 104 import java.util.stream.Stream;</span>
+ 105 
+ 106 /**
+ 107  * A date without a time-zone in the ISO-8601 calendar system,
+ 108  * such as {@code 2007-12-03}.
+ 109  * &lt;p&gt;
+ 110  * {@code LocalDate} is an immutable date-time object that represents a date,
+ 111  * often viewed as year-month-day. Other date fields, such as day-of-year,
+ 112  * day-of-week and week-of-year, can also be accessed.
+ 113  * For example, the value "2nd October 2007" can be stored in a {@code LocalDate}.
+ 114  * &lt;p&gt;
+ 115  * This class does not store or represent a time or time-zone.
+ 116  * Instead, it is a description of the date, as used for birthdays.
+ 117  * It cannot represent an instant on the time-line without additional information
+ 118  * such as an offset or time-zone.
+ 119  * &lt;p&gt;
+ 120  * The ISO-8601 calendar system is the modern civil calendar system used today
+ 121  * in most of the world. It is equivalent to the proleptic Gregorian calendar
+ 122  * system, in which today's rules for leap years are applied for all time.
+ 123  * For most applications written today, the ISO-8601 rules are entirely suitable.
+ 124  * However, any application that makes use of historical dates, and requires them
+
+</pre><hr></hr><pre>
+1681      *
+1682      * @param endDateExclusive  the end date, exclusive, which may be in any chronology, not null
+1683      * @return the period between this date and the end date, not null
+1684      */
+1685     @Override
+1686     public Period until(ChronoLocalDate endDateExclusive) {
+1687         LocalDate end = LocalDate.from(endDateExclusive);
+1688         long totalMonths = end.getProlepticMonth() - this.getProlepticMonth();  // safe
+1689         int days = end.day - this.day;
+1690         if (totalMonths &gt; 0 &amp;&amp; days &lt; 0) {
+1691             totalMonths--;
+1692             LocalDate calcDate = this.plusMonths(totalMonths);
+1693             days = (int) (end.toEpochDay() - calcDate.toEpochDay());  // safe
+1694         } else if (totalMonths &lt; 0 &amp;&amp; days &gt; 0) {
+1695             totalMonths++;
+1696             days -= end.lengthOfMonth();
+1697         }
+1698         long years = totalMonths / 12;  // safe
+1699         int months = (int) (totalMonths % 12);  // safe
+1700         return Period.of(Math.toIntExact(years), months, days);
+<span class="new">1701     }</span>
+<span class="new">1702     </span>
+<span class="new">1703     /**</span>
+<span class="new">1704      * Returns a sequential ordered {@link Stream} containing all the</span>
+<span class="new">1705      * {@code LocalDate} values starting from this (inclusive) to</span>
+<span class="new">1706      * {@code endExclusive} (exclusive) by an incremental step of 1 day.</span>
+<span class="new">1707      * &lt;p&gt;</span>
+<span class="new">1708      * This method is equivalent to {@code datesUntil(endExclusive, Period.ofDays(1))}.</span>
+<span class="new">1709      * &lt;p&gt;</span>
+<span class="new">1710      * The resulting stream will be empty if the end date is equal to or before the start.</span>
+<span class="new">1711      *</span>
+<span class="new">1712      * @param endExclusive  the end date, exclusive, not null</span>
+<span class="new">1713      * @return a sequential {@code Stream} for the range of {@code LocalDate}</span>
+<span class="new">1714      *         values</span>
+<span class="new">1715      * @since 9</span>
+<span class="new">1716      */</span>
+<span class="new">1717     public Stream&lt;LocalDate&gt; datesUntil(LocalDate endExclusive) {</span>
+<span class="new">1718         return LongStream.range(0, daysUntil(endExclusive)).mapToObj(this::plusDays);</span>
+<span class="new">1719     }</span>
+<span class="new">1720 </span>
+<span class="new">1721     /**</span>
+<span class="new">1722      * Returns a sequential ordered {@link Stream} containing the</span>
+<span class="new">1723      * {@code LocalDate} values starting from this (inclusive) to</span>
+<span class="new">1724      * {@code endExclusive} (exclusive) by the supplied incremental {@code step}.</span>
+<span class="new">1725      * &lt;p&gt;</span>
+<span class="new">1726      * The resulting stream will be empty if the end date is equal to or before the start.</span>
+<span class="new">1727      * </span>
+<span class="new">1728      * @param endExclusive  the end date, exclusive, not null</span>
+<span class="new">1729      * @param step  the non-zero, non-negative {@code Period} which represents </span>
+<span class="new">1730      *              the step.</span>
+<span class="new">1731      * @return a sequential {@code Stream} for the range of {@code LocalDate}</span>
+<span class="new">1732      *         values</span>
+<span class="new">1733      * @throws IllegalArgumentException if step is zero or is negative</span>
+<span class="new">1734      * @since 9</span>
+<span class="new">1735      */</span>
+<span class="new">1736     public Stream&lt;LocalDate&gt; datesUntil(LocalDate endExclusive, Period step) {</span>
+<span class="new">1737         if (step.isZero() || step.isNegative())</span>
+<span class="new">1738             throw new IllegalArgumentException("step must be positive");</span>
+<span class="new">1739         long until = daysUntil(endExclusive);</span>
+<span class="new">1740         if (until &lt;= 0)</span>
+<span class="new">1741             return Stream.empty();</span>
+<span class="new">1742         long months = step.toTotalMonths();</span>
+<span class="new">1743         long days = step.getDays();</span>
+<span class="new">1744         long steps;</span>
+<span class="new">1745         if (months != 0) {</span>
+<span class="new">1746             // 48699/1600 = 365.2425/12, no overflow</span>
+<span class="new">1747             steps = until * 1600 / (months * 48699 + days * 1600) + 1;</span>
+<span class="new">1748             long endDays = endExclusive.toEpochDay();</span>
+<span class="new">1749             long maxAddMonths = MAX.getProlepticMonth() - getProlepticMonth();</span>
+<span class="new">1750             long addMonths = months * steps;</span>
+<span class="new">1751             long addDays = days * steps;</span>
+<span class="new">1752             // adjust steps estimation</span>
+<span class="new">1753             if (addMonths &gt; maxAddMonths</span>
+<span class="new">1754                     || plusMonths(addMonths).toEpochDay() + addDays &gt;= endDays) {</span>
+<span class="new">1755                 steps--;</span>
+<span class="new">1756                 addMonths -= months;</span>
+<span class="new">1757                 addDays -= days;</span>
+<span class="new">1758                 if (addMonths &gt; maxAddMonths</span>
+<span class="new">1759                         || plusMonths(addMonths).toEpochDay() + addDays &gt;= endDays) {</span>
+<span class="new">1760                     steps--;</span>
+<span class="new">1761                 }</span>
+<span class="new">1762             }</span>
+<span class="new">1763         } else {</span>
+<span class="new">1764             steps = (until - 1) / days;</span>
+<span class="new">1765         }</span>
+<span class="new">1766         return LongStream.rangeClosed(0, steps).mapToObj(</span>
+<span class="new">1767                 n -&gt; this.plusMonths(months * n).plusDays(days * n));</span>
+1768     }
+1769 
+1770     /**
+1771      * Formats this date using the specified formatter.
+1772      * &lt;p&gt;
+1773      * This date will be passed to the formatter to produce a string.
+1774      *
+1775      * @param formatter  the formatter to use, not null
+1776      * @return the formatted date string, not null
+1777      * @throws DateTimeException if an error occurs during printing
+1778      */
+1779     @Override  // override for Javadoc and performance
+1780     public String format(DateTimeFormatter formatter) {
+1781         Objects.requireNonNull(formatter, "formatter");
+1782         return formatter.format(this);
+1783     }
+1784 
+1785     //-----------------------------------------------------------------------
+1786     /**
+1787      * Combines this date with a time to create a {@code LocalDateTime}.
+
+</pre><hr></hr>
+</pre></td>
+</tr></table>
+<center>&lt prev <a href='../../../../../../index.html' target='_top'>index</a> <a href='../../../../../../test/java/time/tck/java/time/TCKLocalDate.java.sdiff.html' target='_top'>next &gt</a></center>
+</body></html>

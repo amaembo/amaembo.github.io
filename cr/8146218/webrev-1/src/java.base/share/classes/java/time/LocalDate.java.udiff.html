@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<!--
+   Note to customizers: the body of the webrev is IDed as SUNWwebrev
+   to allow easy overriding by users of webrev via the userContent.css
+   mechanism available in some browsers.
+
+   For example, to have all "removed" information be red instead of
+   brown, set a rule in your userContent.css file like:
+
+       body#SUNWwebrev span.removed { color: red ! important; }
+-->
+<style type="text/css" media="screen">
+body {
+    background-color: #eeeeee;
+}
+hr {
+    border: none 0;
+    border-top: 1px solid #aaa;
+    height: 1px;
+}
+div.summary {
+    font-size: .8em;
+    border-bottom: 1px solid #aaa;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+div.summary h2 {
+    margin-bottom: 0.3em;
+}
+div.summary table th {
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+}
+span.lineschanged {
+    font-size: 0.7em;
+}
+span.oldmarker {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+}
+span.newmarker {
+    color: green;
+    font-size: large;
+    font-weight: bold;
+}
+span.removed {
+    color: brown;
+}
+span.changed {
+    color: blue;
+}
+span.new {
+    color: blue;
+    font-weight: bold;
+}
+a.print { font-size: x-small; }
+
+</style>
+
+<style type="text/css" media="print">
+pre { font-size: 0.8em; font-family: courier, monospace; }
+span.removed { color: #444; font-style: italic }
+span.changed { font-weight: bold; }
+span.new { font-weight: bold; }
+span.newmarker { font-size: 1.2em; font-weight: bold; }
+span.oldmarker { font-size: 1.2em; font-weight: bold; }
+a.print {display: none}
+hr { border: none 0; border-top: 1px solid #aaa; height: 1px; }
+</style>
+
+<title>jdk Udiff src/java.base/share/classes/java/time/LocalDate.java</title>
+
+<style type="text/css" media="screen">
+span.new {
+    color: blue;
+    font-weight: normal;
+}
+</style>
+
+</head>
+<body id="SUNWwebrev">
+<center>&lt prev <a href='../../../../../../index.html' target='_top'>index</a> <a href='../../../../../../test/java/time/tck/java/time/TCKLocalDate.java.udiff.html' target='_top'>next &gt</a></center>
+<h2>src/java.base/share/classes/java/time/LocalDate.java</h2>
+        <a class="print" href="javascript:print()">Print this page</a>
+<pre></pre>
+        <pre>
+</pre><hr /><pre>
+<span class="newmarker">@@ -98,10 +98,12 @@</span>
+ import java.time.temporal.UnsupportedTemporalTypeException;
+ import java.time.temporal.ValueRange;
+ import java.time.zone.ZoneOffsetTransition;
+ import java.time.zone.ZoneRules;
+ import java.util.Objects;
+<span class="new">+import java.util.stream.LongStream;</span>
+<span class="new">+import java.util.stream.Stream;</span>
+ 
+ /**
+  * A date without a time-zone in the ISO-8601 calendar system,
+  * such as {@code 2007-12-03}.
+  * &lt;p&gt;
+</pre><hr /><pre>
+<span class="newmarker">@@ -1697,10 +1699,77 @@</span>
+         int months = (int) (totalMonths % 12);  // safe
+         return Period.of(Math.toIntExact(years), months, days);
+     }
+ 
+     /**
+<span class="new">+     * Returns a sequential ordered {@link Stream} containing all the</span>
+<span class="new">+     * {@code LocalDate} values starting from this (inclusive) to</span>
+<span class="new">+     * {@code endExclusive} (exclusive) by an incremental step of 1 day.</span>
+<span class="new">+     * &lt;p&gt;</span>
+<span class="new">+     * This method is equivalent to {@code datesUntil(endExclusive, Period.ofDays(1))}.</span>
+<span class="new">+     * &lt;p&gt;</span>
+<span class="new">+     * The resulting stream will be empty if the end date is equal to or before the start.</span>
+<span class="new">+     *</span>
+<span class="new">+     * @param endExclusive  the end date, exclusive, not null</span>
+<span class="new">+     * @return a sequential {@code Stream} for the range of {@code LocalDate}</span>
+<span class="new">+     *         values</span>
+<span class="new">+     * @since 9</span>
+<span class="new">+     */</span>
+<span class="new">+    public Stream&lt;LocalDate&gt; datesUntil(LocalDate endExclusive) {</span>
+<span class="new">+        return LongStream.range(0, daysUntil(endExclusive)).mapToObj(this::plusDays);</span>
+<span class="new">+    }</span>
+<span class="new">+</span>
+<span class="new">+    /**</span>
+<span class="new">+     * Returns a sequential ordered {@link Stream} containing the</span>
+<span class="new">+     * {@code LocalDate} values starting from this (inclusive) to</span>
+<span class="new">+     * {@code endExclusive} (exclusive) by the supplied incremental {@code step}.</span>
+<span class="new">+     * &lt;p&gt;</span>
+<span class="new">+     * The resulting stream will be empty if the end date is equal to or before the start.</span>
+<span class="new">+     * </span>
+<span class="new">+     * @param endExclusive  the end date, exclusive, not null</span>
+<span class="new">+     * @param step  the non-zero, non-negative {@code Period} which represents </span>
+<span class="new">+     *              the step.</span>
+<span class="new">+     * @return a sequential {@code Stream} for the range of {@code LocalDate}</span>
+<span class="new">+     *         values</span>
+<span class="new">+     * @throws IllegalArgumentException if step is zero or is negative</span>
+<span class="new">+     * @since 9</span>
+<span class="new">+     */</span>
+<span class="new">+    public Stream&lt;LocalDate&gt; datesUntil(LocalDate endExclusive, Period step) {</span>
+<span class="new">+        if (step.isZero() || step.isNegative())</span>
+<span class="new">+            throw new IllegalArgumentException("step must be positive");</span>
+<span class="new">+        long until = daysUntil(endExclusive);</span>
+<span class="new">+        if (until &lt;= 0)</span>
+<span class="new">+            return Stream.empty();</span>
+<span class="new">+        long months = step.toTotalMonths();</span>
+<span class="new">+        long days = step.getDays();</span>
+<span class="new">+        long steps;</span>
+<span class="new">+        if (months != 0) {</span>
+<span class="new">+            // 48699/1600 = 365.2425/12, no overflow</span>
+<span class="new">+            steps = until * 1600 / (months * 48699 + days * 1600) + 1;</span>
+<span class="new">+            long endDays = endExclusive.toEpochDay();</span>
+<span class="new">+            long maxAddMonths = MAX.getProlepticMonth() - getProlepticMonth();</span>
+<span class="new">+            long addMonths = months * steps;</span>
+<span class="new">+            long addDays = days * steps;</span>
+<span class="new">+            // adjust steps estimation</span>
+<span class="new">+            if (addMonths &gt; maxAddMonths</span>
+<span class="new">+                    || plusMonths(addMonths).toEpochDay() + addDays &gt;= endDays) {</span>
+<span class="new">+                steps--;</span>
+<span class="new">+                addMonths -= months;</span>
+<span class="new">+                addDays -= days;</span>
+<span class="new">+                if (addMonths &gt; maxAddMonths</span>
+<span class="new">+                        || plusMonths(addMonths).toEpochDay() + addDays &gt;= endDays) {</span>
+<span class="new">+                    steps--;</span>
+<span class="new">+                }</span>
+<span class="new">+            }</span>
+<span class="new">+        } else {</span>
+<span class="new">+            steps = (until - 1) / days;</span>
+<span class="new">+        }</span>
+<span class="new">+        return LongStream.rangeClosed(0, steps).mapToObj(</span>
+<span class="new">+                n -&gt; this.plusMonths(months * n).plusDays(days * n));</span>
+<span class="new">+    }</span>
+<span class="new">+</span>
+<span class="new">+    /**</span>
+      * Formats this date using the specified formatter.
+      * &lt;p&gt;
+      * This date will be passed to the formatter to produce a string.
+      *
+      * @param formatter  the formatter to use, not null
+</pre>
+<center>&lt prev <a href='../../../../../../index.html' target='_top'>index</a> <a href='../../../../../../test/java/time/tck/java/time/TCKLocalDate.java.udiff.html' target='_top'>next &gt</a></center>
+</body></html>
+
