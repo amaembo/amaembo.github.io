@@ -1,5 +1,5 @@
 <svg version="1.1"
-     width="280" height="1000"
+     width="280" height="650"
      xmlns="http://www.w3.org/2000/svg">
 <g id="map-guy">
   <path d="M100,20 q0,20 -20,20 l-50,0 q-20,0 -20,20 l0,120 q0,20 20,20 l50,0 q20,0 20,20 l50,0 q0,-20 20,-20 l50,0 q20,0 20,-20 l0,-120 q0,-20 -20,-20 l-50,0 q-20,0 -20,-20" fill="#CCC" stroke-width="3" stroke="#333"/>
