@@ -1,0 +1,35 @@
+<!-- Created by Tagir Valeev (lany@ngs.ru) 
+     License: CC BY 4.0 http://creativecommons.org/licenses/by/4.0/ -->
+<svg version="1.1"
+     width="280" height="270"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+  <linearGradient id="gray_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#B0B3B6;stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#D0D3D6;stop-opacity:1" />
+  </linearGradient>
+</defs>
+<symbol id="connector">
+  <path d="M95,3 l60,0 l0,20 l-60,0 z" fill="url(#gray_grad)" stroke-width="3" stroke="#333"/>
+</symbol>
+<g id="source-component" transform="translate(0,20)">
+  <path d="M110,0 l30,0 l0,10 l-30,0 z" fill="yellow" stroke-width="3" stroke="#963">
+    <animate attributeType="XML" attributeName="d" id="yellow_source"
+        from="M110,0 l30,0 l0,10 l-30,0 z" to="M110,220 l30,0 l0,10 l-30,0 z" begin="0;yellow_source.end+2000ms" dur="1000ms" fill="remove"/>
+  </path>
+
+  <path d="M110,0 l30,0 l0,10 l-30,0 z" fill="green" stroke-width="3" stroke="#963">
+    <animate attributeType="XML" attributeName="d" id="green_source"
+        from="M110,0 l30,0 l0,10 l-30,0 z" to="M110,220 l30,0 l0,10 l-30,0 z" begin="1000ms;green_source.end+2000ms" dur="1000ms" fill="remove"/>
+  </path>
+
+  <path d="M110,0 l30,0 l0,10 l-30,0 z" fill="blue" stroke-width="3" stroke="#963">
+    <animate attributeType="XML" attributeName="d" id="blue_source"
+        from="M110,0 l30,0 l0,10 l-30,0 z" to="M110,220 l30,0 l0,10 l-30,0 z" begin="2000ms;blue_source.end+2000ms" dur="1000ms" fill="remove"/>
+  </path>
+
+  <path d="M100,0 l50,0 l0,40 l-50,0 z" fill="url(#gray_grad)" stroke-width="3" stroke="#333"/>
+  <use xlink:href="#connector" y="37"/>
+</g>
+</svg>
