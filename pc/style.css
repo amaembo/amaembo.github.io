@@ -1,0 +1,19 @@
+body {
+text-align: center;
+font: 10pt Helvetica, Verdana, MS Sans Serif, Arial;
+}
+
+td.about {
+background-color: #00FF00;
+font: 8pt Helvetica, Verdana, MS Sans Serif, Arial;
+}
+
+td {
+background-color: #E0E0E0;
+font: 10pt Helvetica, Verdana, MS Sans Serif, Arial;
+}
+
+th {
+background-color: #80FF80;
+font: bold 10pt Helvetica, Verdana, MS Sans Serif, Arial;
+}
